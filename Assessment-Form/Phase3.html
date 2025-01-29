@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 3</title>
+    <script type="module" src="firebase-init.js"></script>
+    <script type="module" src="logic.js"></script>
+    <link rel="stylesheet" href="Form.css">
+</head>
+<body>
+    <form id="phase-form">
+        <h2>Phase 3: Identify Threats</h2>
+        
+        <label for="area-of-concern">Area of Concern:</label>
+        <input type="text" id="area-of-concern" name="area-of-concern" 
+        placeholder="Specify the area of concern (e.g., 'Unauthorized Access')." required><br><br>
+        
+        <label for="threat-scenario">Threat Scenario Description:</label>
+        <textarea id="threat-scenario" name="threat-scenario" rows="4" cols="50" 
+        placeholder="Describe the potential threat scenario. Provide details about how the threat could occur. 
+(e.g., 'An unauthorized user gaining access to sensitive data')." required></textarea><br><br>
+        
+        <label for="affected-asset">Affected Asset:</label>
+        <select id="affected-asset" name="affected-asset">
+          <!-- Options dynamically generated from Phase 2 -->
+        </select><br><br>
+        
+        <div>
+          <label for="likelihood">Likelihood of Threat:</label>
+          <span id="importance-level-value">3</span>
+        </div>
+
+        <input type="range" id="likelihood" name="likelihood" min="1" max="5" step="1"><br>
+        <small>*Rate the likelihood of this threat occurring from 1 (least likely) to 5 (most likely).</small>
+        <br><br>
+        
+        <div>
+            <button type="button" id="prev-form">Previous</button>
+            <button type="button" id="save-form">Save Form</button>
+            <button type="button" id="next-form">Next</button>
+          </div>
+      </form>
+      
+</body>
+</html>

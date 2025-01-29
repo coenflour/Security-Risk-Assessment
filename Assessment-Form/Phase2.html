@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 2</title>
+    <script type="module" src="firebase-init.js"></script>
+    <script type="module" src="logic.js"></script>
+    <link rel="stylesheet" href="Form.css">
+</head>
+<body>
+    <form id="phase-form">
+        <h2>Phase 2: Profile Assets</h2>
+        
+        <label for="asset-name">Asset Name:</label>
+        <input type="text" id="asset-name" name="asset-name" 
+        placeholder="Enter the name of the asset (e.g., 'Main Database Server')." required><br><br>
+        
+        <label for="asset-description">Asset Description:</label>
+        <textarea id="asset-description" name="asset-description" rows="4" cols="50" 
+        placeholder="Provide a description of the asset. Describe the asset, including its function and importance. 
+(e.g., 'A physical server hosting the production database').
+        " required></textarea><br><br>
+        
+        <label for="container-type">Container Type:</label>
+        <select id="container-type" name="container-type">
+          <option value="" disabled selected>Select container type</option>
+          <option value="physical">Physical</option>
+          <option value="technical">Technical</option>
+          <option value="people">People</option>
+        </select><br><br>
+        
+        <div>
+        <label for="importance-level">Importance Level:</label>
+        <span id="importance-level-value">3</span>
+        </div>
+
+        <input type="range" id="importance-level" name="importance-level" min="1" max="5" step="1"><br>
+        <small>*Rate the criticality of this asset from 1 (least critical) to 5 (most critical).</small>
+        <br><br>
+        
+        <div>
+            <button type="button" id="prev-form">Previous</button>
+            <button type="button" id="save-form">Save Form</button>
+            <button type="button" id="next-form">Next</button>
+          </div>
+      </form>      
+</body>
+</html>

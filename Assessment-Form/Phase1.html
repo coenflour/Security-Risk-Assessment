@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 1</title>
+    <script type="module" src="firebase-init.js"></script>
+    <script type="module" src="logic.js"></script>
+    <link rel="stylesheet" href="Form.css">
+
+</head>
+<body>
+    <form id="phase-form">
+        <h2>Phase 1: Establish Focus</h2>
+        
+        <label for="criteria-name">Risk Measurement Criteria:</label>
+        <input type="text" id="criteria-name" name="criteria-name" 
+        placeholder="Enter a concise name for the risk criteria (e.g., 'Data Integrity Risk')" required><br><br>
+        
+        <label for="criteria-description">Description of Criteria:</label>
+        <textarea id="criteria-description" name="criteria-description" rows="4" cols="50" 
+        placeholder="Provide a detailed explanation of the criteria. Explain the scope and purpose of this criterion for assessing risks. 
+(e.g., 'Risks related to data consistency and accuracy')." required></textarea><br><br>
+        
+        <label for="priority-level">Priority Level:</label>
+        <select id="priority-level" name="priority-level">
+          <option value="" disabled selected>Select priority level</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select><br><br>
+        
+        <div>
+          <button type="button" id="save-form">Save Form</button>
+          <button type="button" id="next-form">Next</button>
+        </div>
+      </form>      
+</body>
+</html>
