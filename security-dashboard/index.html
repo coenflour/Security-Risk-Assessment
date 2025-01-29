@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f4f6;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 16px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .profile-card {
+            background: #fff;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 15%;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-card span {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .profile-header {
+            display: flex; /* Makes elements inside align horizontally */
+            align-items: center; /* Aligns items vertically */ 
+        }
+
+        .profile-picture {
+            width: 30px;
+            height: 30px;
+            margin-right: 5px;
+        }
+
+        .profile-card,
+        .add-record-card {
+            background: #fff;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-decoration: none; /* Removes underline for links */
+            color: inherit; /* Ensures link inherits text color */
+            transition: transform 0.2s ease, box-shadow 0.2s ease; /* Add smooth hover effect */
+        }
+
+        .add-record-card span {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+
+        .add-record-card:hover {
+            transform: translateY(-4px); /* Adds a hover effect to lift the card */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            cursor: pointer; /* Changes cursor to indicate it's clickable */
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 40% 40% 20%; /* Defines three columns with specific widths */
+            gap: 16px; /* Space between columns */
+            text-align: center;
+        }
+
+        .card {
+            background: #fff;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #right-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center content */
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    gap: 10px; /* Add spacing */
+}
+
+.top-box, .bottom-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 50%; /* Divides the container into two equal parts */
+    border-bottom: 1px solid #ddd; /* Visual separator */
+}
+
+.bottom-box {
+    border-bottom: none; /* Remove border for the last box */
+}
+
+.risk-number {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #000;
+}
+
+.low {
+    font-size: 2rem;
+    font-weight: bold;
+    color: limegreen;
+}
+
+p {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+        .form-result {
+            display: grid;
+            gap: 16px; /* Space between columns */
+            text-align: center;
+            background: #fff;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <!-- Profile Info -->
+            <div class="profile-card">
+                <img src="user.svg" alt="Profile Picture" class="profile-picture">
+                <span id=""username">User101</span>
+            </div>
+            
+
+            <!-- Add New Record Button -->
+            <a href="/form" class="add-record-card">
+                <div class="add-record-content">
+                    <img src="add.svg" alt="Profile Picture" class="profile-picture">
+                    <span>Add New Record</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="content">
+            <!-- Pie Chart Overview -->
+            <div class="card">
+                <h3>Security Level Overview</h3>
+                <canvas id="pieChart"></canvas>
+            </div>
+
+            <!-- Form Results Table -->
+            <div class="card">
+                <h3>Form Results Overview</h3>
+
+            </div>
+
+            <div class="card" id="right-section">
+                <div class="top-box">
+                    <span class="risk-number">8</span>
+                    <p>Risk Analyzed</p>
+                </div>
+                <div class="bottom-box">
+                    <span class="low">Low</span>
+                    <p>Average Risk</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-result">
+            <h3>Form Results Overview</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Asset Name</th>
+                        <th>Priority Level</th>
+                        <th>Area of Concern</th>
+                        <th>Risk Level</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Rows will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('pieChart').getContext('2d');
+        const pieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Low', 'Medium', 'High'],
+                datasets: [{
+                    data: [30, 40, 20],
+                    backgroundColor: ['#4caf50', '#ff9800', '#f44336']
+                }]
+            }
+        });
+
+        const formResults = [
+            { date: "2025-01-27", title: "System Audit", prioLevel: "Low", system: "Payroll", riskLevel: "High", status: "Pending" },
+            { date: "2025-01-27", title: "Access Review", prioLevel: "Medium", system: "HR", riskLevel: "Medium", status: "Completed" }
+        ];
+
+        const tableBody = document.getElementById('tableBody');
+        formResults.forEach(result => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${result.date}</td>
+                <td>${result.title}</td>
+                <td>${result.prioLevel}</td>
+                <td>${result.system}</td>
+                <td>${result.riskLevel}</td>
+                <td>${result.status}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    </script>
+</body>
+</html>
