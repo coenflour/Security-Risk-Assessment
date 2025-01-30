@@ -4,6 +4,7 @@ import './Result.css';
 import email from '../../assets/email.svg';
 import download from '../../assets/download.svg';
 import { jsPDF } from 'jspdf';
+import 'jspdf-autotable'; 
 import emailjs from 'emailjs-com';
 import { db } from '../../firebase';
 import { collection, getDocs } from 'firebase/firestore';
@@ -13,16 +14,15 @@ const Result = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [assessmentData, setAssessmentData] = useState([]);
   
-  // Fetch stored assessment data from Firestore
   useEffect(() => {
     const fetchAssessmentData = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'assessments'));
         const data = [];
         querySnapshot.forEach(doc => {
-          data.push(doc.data()); // Push the assessment data
+          data.push(doc.data()); 
         });
-        setAssessmentData(data); // Set the assessment data state
+        setAssessmentData(data); 
       } catch (error) {
         console.error('Error fetching assessments:', error);
       }
@@ -30,25 +30,58 @@ const Result = () => {
 
     fetchAssessmentData();
     
-    // Get the user's email from local storage
     const userEmail = localStorage.getItem('userEmail');
     if (userEmail) {
-      setEmailRecipient(userEmail); // Set email
+      setEmailRecipient(userEmail); 
     }
   }, []);
 
   const downloadPDF = () => {
     const doc = new jsPDF('landscape');
-    const content = document.querySelector('.result-nih');
-
-    doc.html(content, {
-      callback: function (doc) {
-        doc.save('result.pdf');
-      },
-      margin: [10, 10, 10, 10],
-      x: 10,
-      y: 10,
+    
+    const tableData = assessmentData.map((data) => {
+      const phase3 = data.phase3 || {};
+      const phase4 = data.phase4 || {};
+      return [
+        phase3.affectedAsset || 'N/A',
+        phase3.areaOfConcern || 'N/A',
+        phase3.likelihood || 'N/A',
+        phase3.threatScenario || 'N/A',
+        phase4.impactAreas ? Object.keys(phase4.impactAreas).join(', ') : 'N/A',
+        phase4.impactLevel || 'N/A',
+        phase4.mitigationApproach || 'N/A'
+      ];
     });
+
+    // Tentukan kolom tabel
+    const columns = [
+      'Affected Asset', 
+      'Area of Concern', 
+      'Likelihood', 
+      'Threat Scenario', 
+      'Impact Area', 
+      'Impact Level', 
+      'Mitigation Approach'
+    ];
+
+    doc.autoTable({
+      head: [columns], 
+      body: tableData, 
+      startY: 20, 
+      theme: 'grid', 
+      margin: { top: 10, left: 10, right: 10, bottom: 10 }, 
+      headStyles: {
+        fillColor: [10, 5, 51],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+      },
+      bodyStyles: {
+        fillColor: [122, 101, 201],
+        textColor: [0, 0, 0],
+      }
+    });
+
+    doc.save('result.pdf');
   };
 
   const sendEmail = () => {
@@ -56,7 +89,7 @@ const Result = () => {
       to_email: emailRecipient,
       subject: 'Result PDF from RiskAnalyze',
       message: 'Please find the attached result PDF from RiskAnalyze.',
-      attachment: '', // You may include a base64 attachment if needed
+      attachment: '',
     };
 
     emailjs
@@ -69,7 +102,7 @@ const Result = () => {
       .then(
         (response) => {
           console.log('Email successfully sent!', response.status, response.text);
-          setShowPopup(true); // Show popup when email is sent
+          setShowPopup(true); 
         },
         (error) => {
           console.log('Failed to send email:', error);
@@ -78,7 +111,7 @@ const Result = () => {
   };
 
   const closePopup = () => {
-    setShowPopup(false); // Close popup when clicked
+    setShowPopup(false); 
   };
 
   return (
