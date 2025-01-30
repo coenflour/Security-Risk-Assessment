@@ -1,22 +1,17 @@
 import { useState, useEffect, useRef } from "react";
+import { db } from "../../firebase"; 
+import { collection, getDocs, updateDoc, doc } from "firebase/firestore"; // Import updateDoc and doc for updating Firebase data
 import Chart from "chart.js/auto";
 import "./Dashboard.css";
 import user from "../../assets/user.svg";
 import add from "../../assets/add.svg";
-import Navbar from '../../components/Navbar';
 
 const Dashboard = () => {
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
-
-  const [data, setData] = useState([
-    { id: 1, riskLevel: "HIGH", status: "In Progress" },
-    { id: 2, riskLevel: "LOW", status: "Completed" },
-    { id: 3, riskLevel: "MEDIUM", status: "Completed" },
-    { id: 4, riskLevel: "HIGH", status: "In Progress" },
-  ]);
-
+  const [data, setData] = useState([]);
   const [userEmail, setUserEmail] = useState(""); 
+  const [riskCount, setRiskCount] = useState(0); // Store risk count
 
   useEffect(() => {
     const email = localStorage.getItem("userEmail");
@@ -25,11 +20,43 @@ const Dashboard = () => {
     }
   }, []);
 
-  const handleRiskLevelChange = (id, newRiskLevel) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      const querySnapshot = await getDocs(collection(db, "assessments"));
+      const assessments = [];
+
+      querySnapshot.forEach((doc) => {
+        const docData = doc.data();
+        assessments.push({
+          id: doc.id,
+          title: docData.phase3?.areaOfConcern || "Unknown", 
+          date: docData.phase4?.timestamp
+            ? new Date(docData.phase4.timestamp.seconds * 1000).toLocaleDateString()
+            : "N/A",
+          system: docData.phase3?.system || "Unknown",
+          riskLevel: docData.phase4?.impactLevel || "Unknown",
+          status: docData.phase4?.status || "In Progress",
+        });
+      });
+
+      setData(assessments);
+    };
+
+    fetchData();
+  }, []);
+
+  // Handle Risk Level Change
+  const handleRiskLevelChange = async (id, newRiskLevel) => {
     const updatedData = data.map(item =>
       item.id === id ? { ...item, riskLevel: newRiskLevel } : item
     );
     setData(updatedData);
+
+    // Update Firebase
+    const assessmentDoc = doc(db, "assessments", id);
+    await updateDoc(assessmentDoc, {
+      "phase4.impactLevel": newRiskLevel,
+    });
   };
 
   const handleStatusChange = (id, newStatus) => {
@@ -41,14 +68,10 @@ const Dashboard = () => {
 
   const getRiskLevelClass = (level) => {
     switch(level) {
-      case "LOW":
-        return "low-risk";
-      case "MEDIUM":
-        return "medium-risk";
-      case "HIGH":
-        return "high-risk";
-      default:
-        return "";
+      case "LOW": return "low-risk";
+      case "MEDIUM": return "medium-risk";
+      case "HIGH": return "high-risk";
+      default: return "";
     }
   };
 
@@ -56,32 +79,54 @@ const Dashboard = () => {
     return status === "In Progress" ? "in-progress" : "completed";
   };
 
-  useEffect(() => {
-    const ctx = chartRef.current.getContext("2d");
+  // Function to update chart data based on risk levels
+  const updateChart = () => {
+    const low = data.filter(item => item.riskLevel.trim().toUpperCase() === "LOW").length;
+    const medium = data.filter(item => item.riskLevel.trim().toUpperCase() === "MEDIUM").length;
+    const high = data.filter(item => item.riskLevel.trim().toUpperCase() === "HIGH").length;
 
-    if (chartInstance.current) {
-      chartInstance.current.destroy();
-    }
+    console.log("Chart Data:", { low, medium, high }); // Log to check the values
 
-    chartInstance.current = new Chart(ctx, {
-      type: "doughnut",
-      data: {
-        labels: ["Low", "Medium", "High"],
-        datasets: [
-          {
-            data: [28, 42, 30],
-            backgroundColor: ["#4caf50", "#ff9800", "#f44336"],
-          },
-        ],
-      },
-    });
+    if (chartRef.current) {
+      const ctx = chartRef.current.getContext("2d");
 
-    return () => {
       if (chartInstance.current) {
         chartInstance.current.destroy();
       }
-    };
-  }, []);
+
+      chartInstance.current = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+          labels: ["Low", "Medium", "High"],
+          datasets: [
+            {
+              data: [low, medium, high],
+              backgroundColor: ["#4caf50", "#ff9800", "#f44336"],
+            },
+          ],
+        },
+      });
+    } else {
+      console.error("Chart reference is null or canvas not found!");
+    }
+  };
+
+  // Calculate the risk count
+  const getRiskCounts = () => {
+    const low = data.filter(item => item.riskLevel.trim().toUpperCase() === "LOW").length;
+    const medium = data.filter(item => item.riskLevel.trim().toUpperCase() === "MEDIUM").length;
+    const high = data.filter(item => item.riskLevel.trim().toUpperCase() === "HIGH").length;
+
+    return { low, medium, high };
+  };
+
+  useEffect(() => {
+    if (data.length > 0) {
+      updateChart(); // Update chart whenever the data changes
+      const { low, medium, high } = getRiskCounts();
+      setRiskCount(low + medium + high); // Set the total risk count
+    }
+  }, [data]);
 
   return (
     <div className="container">
@@ -103,7 +148,7 @@ const Dashboard = () => {
       <div className="content">
         <div className="card">
           <h3>Overview Security Level</h3>
-          <canvas ref={chartRef}></canvas>
+          <canvas ref={chartRef} width="400" height="400"></canvas>
         </div>
 
         <div className="card impact-priority">
@@ -122,43 +167,31 @@ const Dashboard = () => {
             <tbody>
               <tr>
                 <td>Reputation & Confidence</td>
-                <td><span className="empty"></span></td>
-                <td><span className="empty"></span></td>
-                <td><span className="empty"></span></td>
-                <td><span className="checked">&#10004;</span></td>
-                <td><span className="empty"></span></td>
+                <td colSpan="3"></td>
+                <td>&#10004;</td>
+                <td></td>
               </tr>
               <tr>
                 <td>Financial</td>
-                <td><span className="empty"></span></td>
-                <td><span className="empty"></span></td>
-                <td><span className="empty"></span></td>
-                <td><span className="checked">&#10004;</span></td>
-                <td><span className="empty"></span></td>
+                <td colSpan="3"></td>
+                <td>&#10004;</td>
+                <td></td>
               </tr>
               <tr>
                 <td>Productivity</td>
-                <td><span className="empty"></span></td>
-                <td><span className="empty"></span></td>
-                <td><span className="empty"></span></td>
-                <td><span className="empty"></span></td>
-                <td><span className="checked">&#10004;</span></td>
+                <td colSpan="4"></td>
+                <td>&#10004;</td>
               </tr>
               <tr>
                 <td>Safety & Health</td>
-                <td><span className="empty"></span></td>
-                <td><span className="empty"></span></td>
-                <td><span className="checked">&#10004;</span></td>
-                <td><span className="empty"></span></td>
-                <td><span className="empty"></span></td>
+                <td colSpan="2"></td>
+                <td>&#10004;</td>
+                <td colSpan="2"></td>
               </tr>
               <tr>
                 <td>Fines & Legal</td>
-                <td><span className="empty"></span></td>
-                <td><span className="empty"></span></td>
-                <td><span className="empty"></span></td>
-                <td><span className="empty"></span></td>
-                <td><span className="checked">&#10004;</span></td>
+                <td colSpan="4"></td>
+                <td>&#10004;</td>
               </tr>
             </tbody>
           </table>
@@ -166,7 +199,7 @@ const Dashboard = () => {
 
         <div id="right-section">
           <div className="top-box">
-            <span className="risk-number">8</span>
+            <span className="risk-number">{riskCount}</span>
             <p>Risk Analyzed</p>
           </div>
           <div className="bottom-box">
@@ -179,7 +212,6 @@ const Dashboard = () => {
           <table className="table">
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Title</th>
                 <th>Date</th>
                 <th>System</th>
@@ -188,12 +220,11 @@ const Dashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {data.map((row) => (
-                <tr key={row.id}>
-                  <td>{row.id}</td>
-                  <td>API Gateway Server</td>
-                  <td>Jan 19, 2025</td>
-                  <td>E-Commerce Backend</td>
+              {data.map((row,index) => (
+                <tr key={index}>
+                  <td>{row.title}</td>
+                  <td>{row.date}</td>
+                  <td>{row.system}</td>
                   <td>
                     <select
                       value={row.riskLevel}
@@ -221,6 +252,7 @@ const Dashboard = () => {
           </table>
         </div>
       </div>
+      
       <div className="footer">
           &copy; 2025 RiskAnalyze. All Rights Reserved.
       </div>

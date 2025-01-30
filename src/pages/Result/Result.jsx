@@ -202,6 +202,9 @@ const Result = () => {
           </div>
         )}
       </div>
+      <div className='footer'>
+        &copy; 2025 RiskAnalyze. All Rights Reserved.
+      </div>
     </div>
   );
 };

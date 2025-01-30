@@ -95,6 +95,21 @@ const Assesment = () => {
     // Navigate to the result page when the form is submitted in Phase 4
     navigate('/result'); // Update with the actual path of your result page
   };
+  const handleSubmit = () => {
+    const newAssessment = {
+        id: Date.now(),
+        title: areaOfConcern, // Data dari form
+        date: new Date().toLocaleDateString(),
+        system: selectedSystem, // Misalnya dari dropdown
+        riskLevel: selectedRiskLevel,
+        status: "In Progress"
+    };
+
+    const existingData = JSON.parse(localStorage.getItem("assessments")) || [];
+    existingData.push(newAssessment);
+    localStorage.setItem("assessments", JSON.stringify(existingData));
+  };
+
 
   const handleAddAsset = async () => {
     const newAsset = formData.phase2.assetName.trim();
@@ -118,7 +133,6 @@ const Assesment = () => {
       console.log("Asset already exists or is empty:", newAsset);
     }
   
-    // Reset formData untuk Phase 2 setelah asset ditambahkan
     setFormData({
       ...formData,
       phase2: { assetName: '', assetDescription: '', containerType: '', importanceLevel: 3 }
@@ -268,7 +282,7 @@ const Assesment = () => {
 
       {/* Phase 3: Identify Threats */}
       {currentPhase === 3 && (
-        <form id="phase-form3">
+        <form id="phase-form3" onSubmit={handleSubmit}>
           <h2>Phase 3: Identify Threats</h2>
           
           <label htmlFor="area-of-concern">Area of Concern:</label>

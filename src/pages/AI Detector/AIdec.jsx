@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import './AIdec.css';  // Pastikan file CSS diimpor
+import './AIdec.css';  
+import Navbar from "../../components/Navbar";
 
 const AIdec = () => {
   const [url, setUrl] = useState("");
@@ -49,7 +50,9 @@ const AIdec = () => {
   };
 
   return (
-    <div className="container">
+    <div>
+      <Navbar />
+      <div className="container2">
       <h2>Threat Level Detector</h2>
       <div className="input-group">
         <input 
@@ -75,6 +78,11 @@ const AIdec = () => {
         </p>
       )}
     </div>
+    <div className='footer'>
+        &copy; 2025 RiskAnalyze. All Rights Reserved.
+      </div>
+    </div>
+    
   );
 };
 
