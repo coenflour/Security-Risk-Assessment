@@ -1,9 +1,96 @@
-.footer {
-    margin-top: auto; /* Push the footer to the bottom */
-    text-align: center;
-    padding: 10px;
-    background: #5E72EB;
-    color: white;
-    border-radius: 5px;
-  }
-  
+/* Global Styles */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #5E72EB;  /* Background color changed */
+  color: #000000;  /* Font color changed */
+  margin: 0;
+  padding: 0;
+}
+
+h2 {
+  font-size: 24px;
+  color: #000000;  /* Font color changed */
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Container Style */
+.container {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  margin: 50px auto;
+  text-align: center;
+}
+
+/* Input Styles */
+.input-group {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+input[type="text"] {
+  padding: 10px;
+  width: 80%;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  margin-right: 10px;
+  box-sizing: border-box;
+}
+
+input[type="text"]:focus {
+  border-color: #5E72EB;
+  outline: none;
+}
+
+/* Button Styles */
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  background-color: #5E72EB;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #0D0745;
+}
+
+button:active {
+  background-color: #0D0745;
+}
+
+/* Loading text */
+p {
+  font-size: 16px;
+  color: #555;
+}
+
+/* Threat Level Indicator */
+p span {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+span.low {
+  color: #4CAF50;  /* Green for Low */
+}
+
+span.medium {
+  color: #FF9800;  /* Orange for Medium */
+}
+
+span.high {
+  color: #F44336;  /* Red for High */
+}
+
+span.error {
+  color: #550505;  /* Red for Error */
+}
