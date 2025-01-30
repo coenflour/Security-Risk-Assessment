@@ -90,7 +90,7 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  padding: 20px;
+  padding: 30px;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -104,15 +104,17 @@
 }
 
 .risk-number {
-  font-size: 3rem;
+  font-size: 40px;
   font-weight: bold;
   color: #000;
+  margin-bottom: 20px;
 }
 
 .low {
   font-size: 1.5rem;
   font-weight: bold;
   color: limegreen;
+  margin-bottom: 60px;
 }
 
 .table {
