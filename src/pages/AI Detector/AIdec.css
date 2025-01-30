@@ -1,0 +1,9 @@
+.footer {
+    margin-top: auto; /* Push the footer to the bottom */
+    text-align: center;
+    padding: 10px;
+    background: #5E72EB;
+    color: white;
+    border-radius: 5px;
+  }
+  

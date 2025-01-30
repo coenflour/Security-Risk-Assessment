@@ -1,0 +1,138 @@
+h2, h3 {
+    color: #120C6E;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+form {
+    background-color: #5E72EB;
+    margin: 25px auto;
+    padding: 20px;
+    border: 1px solid #0B0742;
+    border-radius: 8px;
+    width: 100%; /* Pastikan form menggunakan seluruh lebar */
+    max-width: 600px; /* Maksimal lebar form */
+    box-sizing: border-box; /* Agar padding tidak melebihi lebar max-width */
+    box-shadow: 0 4px 6px rgba(14, 10, 60, 0.2);
+    text-align: left;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #0B0742;
+}
+
+input[type="text"],
+textarea,
+select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #6F5F90;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+    background-color: #ffffff;
+    color: #0B0742;
+}
+
+textarea {
+    resize: vertical;
+}
+
+input[type="range"] {
+    width: 100%;
+    margin-bottom: 10px;
+    accent-color: #D58AA8;
+}
+
+/* Buttons */
+button {
+    display: inline-block;
+    background-color: #5E72EB;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 14px;
+    margin: 5px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+button {
+    background-color: #120C6E;
+}
+
+button#prev-form {
+    background-color: #6F5F90;
+}
+
+button#prev-form {
+    background-color: #120C6E;
+}
+
+button#save-form {
+    background-color: #5E72EB;
+}
+
+button#save-form {
+    background-color: #120C6E;
+}
+
+#impact-areas {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  #impact-areas th, #impact-areas td {
+    padding: 10px;
+    border: 1px solid white;
+    text-align: left; /* Mengatur agar teks pada tabel rata kiri */
+  }
+  
+  #impact-areas th {
+    background-color: black; /* Memberikan warna latar belakang pada header tabel */
+  }
+  
+  #impact-areas input[type="number"] {
+    width: 60px; /* Memberikan lebar pada input */
+    padding: 5px;
+    text-align: center; /* Mengatur angka agar rata tengah */
+  }
+  
+div {
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    form {
+        width: 90%;
+    }
+}
+.footer {
+    margin-top: auto;
+    text-align: center;
+    padding: 10px;
+    background: #5E72EB;
+    color: white;
+    border-radius: 5px;
+    width: 100%; /* Pastikan footer mengisi lebar penuh */
+}
+.assess-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    align-items: center; /* Pastikan form di tengah secara horizontal */
+    justify-content: flex-start; /* Agar konten berada di atas */
+}
+
+.form-container {
+    width: 100%; /* Pastikan container bisa mengambil lebar penuh */
+    max-width: 600px; /* Batas maksimal lebar */
+}

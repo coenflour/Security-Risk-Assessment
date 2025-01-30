@@ -1,0 +1,77 @@
+.login{
+    height: 100vh;
+    background-color: #0D0745;
+    padding: 20px 8%;
+    text-align: left;
+}
+.login-form h1{
+    text-align: center;
+}
+.login-logo{
+    width: 180px;
+}
+.login-form{
+    width: 100%;
+    max-width: 450px;
+    background: #5E72EB;
+    border-radius: 4px;
+    padding: 60px;
+    margin: auto;
+}
+.login-form h1{
+    font-size: 32px;
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+.login-form input{
+    width: 100%;
+    height: 50px;
+    background: white;
+    color: black;
+    margin: 12px  0;
+    border: 0;
+    outline: 0;
+    border-radius: 4px;
+    padding: 16px 20px;
+    font-size: 16px;
+    font-weight: 500;
+}
+.login-form input::placeholder{
+    font-size: 16px;
+    font-weight: 500;
+}
+.login-form button{
+    width: 100%;
+    border: 0;
+    outline: 0;
+    padding: 16px;
+    background: #0D0745;
+    color: white;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 10px;
+    cursor: pointer;
+}
+.remember{
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    gap: 5px;
+    margin-top: 2px;
+}
+.remember input{
+    width: 16px;
+    height: 16px;
+}
+.form-switch{
+    margin-top: 20px;
+    color: #737373;
+    text-align: center;
+}
+.form-switch span{
+    margin-left: 6px;
+    color: #fff;
+    font-weight: 500;
+    cursor: pointer;
+}
