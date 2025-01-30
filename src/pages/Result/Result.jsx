@@ -19,7 +19,7 @@ const Result = () => {
   }, []);
 
   const downloadPDF = () => {
-    const doc = new jsPDF();
+    const doc = new jsPDF('landscape');
     const content = document.querySelector('.result-nih');
 
     doc.html(content, {
@@ -67,7 +67,7 @@ const Result = () => {
       <Navbar />
       <div className='result-form'>
         <div className='result-nih'>
-          {/* Isi konten untuk hasil di sini */}
+          <h6>haloo</h6>
         </div>
         <div className='button'>
           <div className='email'>
@@ -88,7 +88,6 @@ const Result = () => {
         &copy; 2025 RiskAnalyze. All Rights Reserved.
       </div>
 
-      {/* Popup Modal */}
       {showPopup && (
         <div className='popup'>
           <div className='popup-content'>

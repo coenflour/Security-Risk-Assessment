@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext'; 
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -15,13 +15,52 @@ const App = () => {
   return (
     <AuthProvider>
       <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+
         <Route path='/login' element={<Login />} />
-        <Route path='/result' element={<Result />} />
-        <Route path='/ai-detector' element={<AIdec />} />
-        <Route path='/about-us' element={<AboutUs />} />
-        <Route path='/dashboard' element={<Dashboard />} />
-        <Route path='/assesment' element={<Assesment />} />
-        
+
+        {/* Semua halaman ini harus login dulu */}
+        <Route 
+          path='/result' 
+          element={
+            <ProtectedRoute>
+              <Result />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path='/ai-detector' 
+          element={
+            <ProtectedRoute>
+              <AIdec />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path='/about-us' 
+          element={
+            <ProtectedRoute>
+              <AboutUs />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path='/dashboard' 
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path='/assesment' 
+          element={
+            <ProtectedRoute>
+              <Assesment />
+            </ProtectedRoute>
+          } 
+        />
         <Route 
           path='/home' 
           element={

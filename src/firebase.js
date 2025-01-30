@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { addDoc, collection, getFirestore } from "firebase/firestore";
+import { addDoc, collection, getFirestore, getDocs, onSnapshot} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAFtaQhpZlQUSUv3DhzCET0gNKwlf3CIBo",
@@ -53,4 +53,5 @@ const logout = ()=> {
     signOut(auth);
 }
 
-export {auth, db, login, signup, logout}
+
+export {auth, db, login, signup, logout, collection}
