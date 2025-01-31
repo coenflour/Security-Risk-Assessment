@@ -20,55 +20,12 @@ const App = () => {
 
         <Route path='/login' element={<Login />} />
 
-        {/* Semua halaman ini harus login dulu */}
-        <Route 
-          path='/result' 
-          element={
-            <ProtectedRoute>
-              <Result />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path='/ai-detector' 
-          element={
-            <ProtectedRoute>
-              <AIdec />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path='/about-us' 
-          element={
-            <ProtectedRoute>
-              <AboutUs />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path='/dashboard' 
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path='/assesment' 
-          element={
-            <ProtectedRoute>
-              <Assesment />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path='/home' 
-          element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          }
-        />
+        <Route path='/result' element={<Result />} />
+        <Route path='/dashboard' element={<Dashboard />} />
+        <Route path='/assesment' element={<Assesment />} />
+        <Route path='/home' element={<Home />} />
+        <Route path='/AIdec' element={<AIdec />} />
+        <Route path='/about-us' element={<AboutUs />} />
       </Routes>
     </AuthProvider>
   );
