@@ -167,31 +167,43 @@ const Dashboard = () => {
             <tbody>
               <tr>
                 <td>Reputation & Confidence</td>
-                <td colSpan="3"></td>
+                <td colSpan="1"></td>
                 <td>&#10004;</td>
+                <td colSpan="1"></td>
+                <td colSpan="1"></td>
                 <td></td>
               </tr>
               <tr>
                 <td>Financial</td>
-                <td colSpan="3"></td>
+                <td colSpan="1"></td>
+                <td colSpan="1"></td>
+                <td colSpan="1"></td>
                 <td>&#10004;</td>
                 <td></td>
               </tr>
               <tr>
                 <td>Productivity</td>
-                <td colSpan="4"></td>
+                <td colSpan="1"></td>
+                <td colSpan="1"></td>
+                <td colSpan="1"></td>
+                <td colSpan="1"></td>
                 <td>&#10004;</td>
               </tr>
               <tr>
                 <td>Safety & Health</td>
-                <td colSpan="2"></td>
+                <td colSpan="1"></td>
+                <td colSpan="1"></td>
                 <td>&#10004;</td>
-                <td colSpan="2"></td>
+                <td colSpan="1"></td>
+                <td colSpan="1"></td>
               </tr>
               <tr>
                 <td>Fines & Legal</td>
-                <td colSpan="4"></td>
                 <td>&#10004;</td>
+                <td colSpan="1"></td>
+                <td colSpan="1"></td>
+                <td colSpan="1"></td>
+                <td colSpan="1"></td>
               </tr>
             </tbody>
           </table>
