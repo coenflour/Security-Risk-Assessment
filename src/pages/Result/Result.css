@@ -156,15 +156,19 @@
 .result-table td {
     padding: 10px;
     border: 1px solid #ddd;
+    border-radius: 5px;
 }
 
 .result-table th {
     background-color: #0A0533;
     color: white;
+    text-align: center;
+    padding: 10px;
 }
 
 .result-table td {
     background-color: #7a65c9;
+    color: white !important;
 }
 
 .result-table tr:hover {

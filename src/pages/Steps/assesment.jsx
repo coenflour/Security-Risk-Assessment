@@ -93,7 +93,7 @@ const Assesment = () => {
   };
   const goToResult = () => {
     // Navigate to the result page when the form is submitted in Phase 4
-    navigate('/result'); // Update with the actual path of your result page
+    navigate('/Mine'); // Update with the actual path of your result page
   };
   const handleSubmit = () => {
     const newAssessment = {
@@ -151,19 +151,16 @@ const Assesment = () => {
           }
         });
   
-        // Update state assets hanya jika ada perubahan
+        console.log("Fetched Assets:", allAssets); // Debugging
         setAssets(allAssets);
-  
       } catch (error) {
         console.error("Error fetching assets from Firestore:", error);
       }
     };
   
     fetchAssets();
-  }, [assets]);  // Menambahkan `assets` sebagai dependency untuk re-fetch
+  }, []);
   
-  
-
   return (
     <div className="assess-container">
       <Navbar />

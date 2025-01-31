@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { db } from "../../firebase"; 
-import { collection, getDocs, updateDoc, doc } from "firebase/firestore"; // Import updateDoc and doc for updating Firebase data
+import { db } from "../../firebase";
+import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import Chart from "chart.js/auto";
 import "./Dashboard.css";
 import user from "../../assets/user.svg";
@@ -11,7 +11,7 @@ const Dashboard = () => {
   const chartInstance = useRef(null);
   const [data, setData] = useState([]);
   const [userEmail, setUserEmail] = useState(""); 
-  const [riskCount, setRiskCount] = useState(0); // Store risk count
+  const [riskCount, setRiskCount] = useState(0);
 
   useEffect(() => {
     const email = localStorage.getItem("userEmail");
@@ -27,15 +27,20 @@ const Dashboard = () => {
 
       querySnapshot.forEach((doc) => {
         const docData = doc.data();
+        
+        const timestamp = docData.timestamp;
+        let formattedDate = "Unknown";
+        if (timestamp && timestamp.toDate) {
+          formattedDate = timestamp.toDate().toLocaleDateString("en-GB");
+        }
+
         assessments.push({
           id: doc.id,
-          title: docData.phase3?.areaOfConcern || "Unknown", 
-          date: docData.phase4?.timestamp
-            ? new Date(docData.phase4.timestamp.seconds * 1000).toLocaleDateString()
-            : "N/A",
-          system: docData.phase3?.system || "Unknown",
+          title: docData.phase3?.areaOfConcern || "Unknown",
+          date: formattedDate,
           riskLevel: docData.phase4?.impactLevel || "Unknown",
           status: docData.phase4?.status || "In Progress",
+          asset: docData.phase3?.affectedAsset || "Unknown"
         });
       });
 
@@ -45,25 +50,28 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  // Handle Risk Level Change
   const handleRiskLevelChange = async (id, newRiskLevel) => {
     const updatedData = data.map(item =>
       item.id === id ? { ...item, riskLevel: newRiskLevel } : item
     );
     setData(updatedData);
 
-    // Update Firebase
     const assessmentDoc = doc(db, "assessments", id);
     await updateDoc(assessmentDoc, {
       "phase4.impactLevel": newRiskLevel,
     });
   };
 
-  const handleStatusChange = (id, newStatus) => {
+  const handleStatusChange = async (id, newStatus) => {
     const updatedData = data.map(item =>
       item.id === id ? { ...item, status: newStatus } : item
     );
     setData(updatedData);
+
+    const assessmentDoc = doc(db, "assessments", id);
+    await updateDoc(assessmentDoc, {
+      "phase4.status": newStatus,
+    });
   };
 
   const getRiskLevelClass = (level) => {
@@ -79,13 +87,10 @@ const Dashboard = () => {
     return status === "In Progress" ? "in-progress" : "completed";
   };
 
-  // Function to update chart data based on risk levels
   const updateChart = () => {
     const low = data.filter(item => item.riskLevel.trim().toUpperCase() === "LOW").length;
     const medium = data.filter(item => item.riskLevel.trim().toUpperCase() === "MEDIUM").length;
     const high = data.filter(item => item.riskLevel.trim().toUpperCase() === "HIGH").length;
-
-    console.log("Chart Data:", { low, medium, high }); // Log to check the values
 
     if (chartRef.current) {
       const ctx = chartRef.current.getContext("2d");
@@ -106,12 +111,9 @@ const Dashboard = () => {
           ],
         },
       });
-    } else {
-      console.error("Chart reference is null or canvas not found!");
     }
   };
 
-  // Calculate the risk count
   const getRiskCounts = () => {
     const low = data.filter(item => item.riskLevel.trim().toUpperCase() === "LOW").length;
     const medium = data.filter(item => item.riskLevel.trim().toUpperCase() === "MEDIUM").length;
@@ -122,9 +124,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (data.length > 0) {
-      updateChart(); // Update chart whenever the data changes
+      updateChart(); 
       const { low, medium, high } = getRiskCounts();
-      setRiskCount(low + medium + high); // Set the total risk count
+      setRiskCount(low + medium + high);
     }
   }, [data]);
 
@@ -226,17 +228,17 @@ const Dashboard = () => {
               <tr>
                 <th>Title</th>
                 <th>Date</th>
-                <th>System</th>
+                <th>Asset</th>
                 <th>Risk Level</th>
                 <th>Status</th>
               </tr>
             </thead>
             <tbody>
-              {data.map((row,index) => (
+              {data.map((row, index) => (
                 <tr key={index}>
                   <td>{row.title}</td>
                   <td>{row.date}</td>
-                  <td>{row.system}</td>
+                  <td>{row.asset}</td>
                   <td>
                     <select
                       value={row.riskLevel}
@@ -264,9 +266,9 @@ const Dashboard = () => {
           </table>
         </div>
       </div>
-      
+
       <div className="footer">
-          &copy; 2025 RiskAnalyze. All Rights Reserved.
+        &copy; 2025 RiskAnalyze. All Rights Reserved.
       </div>
     </div>
   );

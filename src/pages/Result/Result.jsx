@@ -22,41 +22,53 @@ const Result = () => {
         const querySnapshot = await getDocs(collection(db, 'assessments'));
         const data = [];
         querySnapshot.forEach(doc => {
-          data.push(doc.data());
+          const docData = doc.data();
+          
+          // Konversi Firestore Timestamp ke string yang lebih mudah dibaca
+          let formattedTimestamp = 'N/A';
+          if (docData.timestamp && docData.timestamp.toDate) {
+            formattedTimestamp = docData.timestamp.toDate().toLocaleString();
+          }
+  
+          data.push({ id: doc.id, ...docData, timestamp: formattedTimestamp });
         });
         setAssessmentData(data);
-        setIsLoading(false); // Data has been loaded
+        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching assessments:', error);
-        setIsLoading(false); // Handle error by stopping the loading
+        setIsLoading(false);
       }
     };
-
+  
     fetchAssessmentData();
-
+  
     const userEmail = localStorage.getItem('userEmail');
     if (userEmail) {
       setEmailRecipient(userEmail);
     }
   }, []);
+  
 
   const downloadPDF = () => {
     const doc = new jsPDF('landscape');
     const tableData = assessmentData.map((data) => {
-      const phase3 = data.phase3 || {};
-      const phase4 = data.phase4 || {};
+      const phase3 = data.phase3 || {};  // Pastikan phase3 ada dan terstruktur dengan benar
+      const phase4 = data.phase4 || {};  // Pastikan phase4 ada dan terstruktur dengan benar
       return [
+        data.timestamp || 'N/A',
         phase3.affectedAsset || 'N/A',
         phase3.areaOfConcern || 'N/A',
         phase3.likelihood || 'N/A',
         phase3.threatScenario || 'N/A',
-        phase4.impactAreas ? Object.keys(phase4.impactAreas).join(', ') : 'N/A',
-        phase4.impactLevel || 'N/A',
+        phase4.impactAreas ? Object.keys(phase4.impactAreas).join(', ') : 'N/A',  // Cek impact area
+        phase4.impactLevel || 'N/A',  // Pastikan impactLevel ada di dalam phase4
         phase4.mitigationApproach || 'N/A'
       ];
     });
+    
 
     const columns = [
+      'Timestamp',
       'Affected Asset', 
       'Area of Concern', 
       'Likelihood', 
@@ -154,6 +166,7 @@ const Result = () => {
             <table className="result-table">
               <thead>
                 <tr>
+                  <th>Date</th>
                   <th>Affected Asset</th>
                   <th>Area of Concern</th>
                   <th>Likelihood</th>
@@ -169,6 +182,7 @@ const Result = () => {
                   const phase4 = data.phase4 || {};
                   return (
                     <tr key={index}>
+                      <td>{data.timestamp || 'N/A'}</td>
                       <td>{phase3.affectedAsset || 'N/A'}</td>
                       <td>{phase3.areaOfConcern || 'N/A'}</td>
                       <td>{phase3.likelihood || 'N/A'}</td>

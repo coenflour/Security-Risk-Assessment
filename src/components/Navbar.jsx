@@ -7,12 +7,16 @@ const Navbar = () => {
   return (
     <div className='navbar'>
         <div className='navbar-left'>
-            <img src={logo} alt='' />
+            {/* Membungkus logo dengan Link */}
+            <Link to="/about-us">
+                <img src={logo} alt='Logo' />
+            </Link>
             <ul>
                 <li><Link to="/home">Overview</Link></li>
                 <li><Link to="/assesment">Assesment Form</Link></li>
                 <li><Link to="/AIDec">AI Detector</Link></li>
-                <li><Link to="/result">Result Form</Link></li>
+                <li><Link to="/Mine">My Form</Link></li>
+                <li><Link to="/Department">Department Form</Link></li>
                 <li><Link to="/about-us">About Us</Link></li>
             </ul>
         </div>
