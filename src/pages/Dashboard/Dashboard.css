@@ -32,6 +32,7 @@
 .add-record-card {
   text-decoration: none;
   color: inherit;
+  font-weight: bold;
 }
 
 .profile-header {
@@ -261,14 +262,6 @@ option {
   padding-left: 12px;
 }
 
-.impact-priority td span {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  line-height: 12px;
-  text-align: center;
-  color: #333;
-}
 
 .impact-priority td span.checked {
   color: black;
@@ -286,3 +279,30 @@ option {
   color: white;
   border-radius: 5px;
 }
+
+.bottom-box span {
+  font-size: 30px;
+  font-weight: bold;
+  color: #000;
+  margin-bottom: 40px;
+}
+
+
+.average-risk span {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.average-risk .low-risk {
+  color: limegreen;
+}
+
+.average-risk .medium-risk {
+  color: #ff9800;
+}
+
+.average-risk .high-risk {
+  color: #f44336;
+}
+

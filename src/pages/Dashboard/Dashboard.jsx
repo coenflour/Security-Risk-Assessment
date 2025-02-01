@@ -12,6 +12,7 @@ const Dashboard = () => {
   const [data, setData] = useState([]);
   const [userEmail, setUserEmail] = useState(""); 
   const [riskCount, setRiskCount] = useState(0);
+  const [averageRisk, setAverageRisk] = useState("Low");
 
   useEffect(() => {
     const email = localStorage.getItem("userEmail");
@@ -21,48 +22,59 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const querySnapshot = await getDocs(collection(db, "assessments"));
-      const assessments = [];
-
-      querySnapshot.forEach((doc) => {
-        const docData = doc.data();
-        
-        const timestamp = docData.timestamp;
-        let formattedDate = "Unknown";
-        if (timestamp && timestamp.toDate) {
-          formattedDate = timestamp.toDate().toLocaleDateString("en-GB");
-        }
-
-        assessments.push({
-          id: doc.id,
-          title: docData.phase3?.areaOfConcern || "Unknown",
-          date: formattedDate,
-          riskLevel: docData.phase4?.impactLevel || "Unknown",
-          status: docData.phase4?.status || "In Progress",
-          asset: docData.phase3?.affectedAsset || "Unknown"
-        });
-      });
-
-      setData(assessments);
-    };
-
     fetchData();
   }, []);
 
+  const fetchData = async () => {
+    console.log("Fetching data from Firestore...");
+    const querySnapshot = await getDocs(collection(db, "assessments"));
+    const assessments = [];
+
+    querySnapshot.forEach((doc) => {
+      const docData = doc.data();
+      console.log("Fetched Document:", docData); // Debugging log
+
+      const timestamp = docData.timestamp;
+      let formattedDate = "Unknown";
+      if (timestamp && timestamp.toDate) {
+        formattedDate = timestamp.toDate().toLocaleDateString("en-GB");
+      }
+
+      assessments.push({
+        id: doc.id,
+        title: docData.phase3?.areaOfConcern || "Unknown",
+        date: formattedDate,
+        riskLevel: docData.phase4?.impactLevel?.toUpperCase() || "UNKNOWN", // Fix case
+        status: docData.phase4?.status || "In Progress",
+        asset: docData.phase3?.affectedAsset || "Unknown"
+      });
+    });
+
+    console.log("Processed Assessments:", assessments);
+    setData(assessments);
+  };
+
   const handleRiskLevelChange = async (id, newRiskLevel) => {
+    const upperCaseRisk = newRiskLevel.toUpperCase(); // Fix case
+    console.log(`Updating risk level for ${id} to ${upperCaseRisk}`);
+
     const updatedData = data.map(item =>
-      item.id === id ? { ...item, riskLevel: newRiskLevel } : item
+      item.id === id ? { ...item, riskLevel: upperCaseRisk } : item
     );
     setData(updatedData);
 
     const assessmentDoc = doc(db, "assessments", id);
     await updateDoc(assessmentDoc, {
-      "phase4.impactLevel": newRiskLevel,
+      "phase4.impactLevel": upperCaseRisk,
     });
+
+    console.log("Updated Firestore successfully");
+    fetchData();
   };
 
   const handleStatusChange = async (id, newStatus) => {
+    console.log(`Updating status for ${id} to ${newStatus}`);
+
     const updatedData = data.map(item =>
       item.id === id ? { ...item, status: newStatus } : item
     );
@@ -72,6 +84,9 @@ const Dashboard = () => {
     await updateDoc(assessmentDoc, {
       "phase4.status": newStatus,
     });
+
+    console.log("Updated Firestore successfully");
+    fetchData();
   };
 
   const getRiskLevelClass = (level) => {
@@ -122,11 +137,30 @@ const Dashboard = () => {
     return { low, medium, high };
   };
 
+  // Calculate the average risk based on counts
+  const calculateAverageRisk = () => {
+    const { low, medium, high } = getRiskCounts();
+    const total = low + medium + high;
+    const percentageLow = (low / total) * 100;
+    const percentageMedium = (medium / total) * 100;
+    const percentageHigh = (high / total) * 100;
+
+    // Determine average risk based on percentage
+    if (percentageLow > percentageMedium && percentageLow > percentageHigh) {
+      setAverageRisk("Low");
+    } else if (percentageMedium > percentageLow && percentageMedium > percentageHigh) {
+      setAverageRisk("Medium");
+    } else {
+      setAverageRisk("High");
+    }
+  };
+
   useEffect(() => {
     if (data.length > 0) {
-      updateChart(); 
+      updateChart();
       const { low, medium, high } = getRiskCounts();
       setRiskCount(low + medium + high);
+      calculateAverageRisk();  // Update the average risk
     }
   }, [data]);
 
@@ -217,8 +251,8 @@ const Dashboard = () => {
             <p>Risk Analyzed</p>
           </div>
           <div className="bottom-box">
-            <span className="low">Low</span>
-            <p>Average Risk</p>
+              <span className={averageRisk.toLowerCase()}>{averageRisk}</span>
+              <p>Average Risk</p>
           </div>
         </div>
 

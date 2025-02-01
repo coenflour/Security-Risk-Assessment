@@ -3,6 +3,8 @@ import "./Login.css";
 import logo from "../../assets/logo.png";
 import { login, signup } from "../../firebase";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';  // Import Toastify
+import 'react-toastify/dist/ReactToastify.css';  // Import Toastify styles
 
 const Login = () => {
     const [signState, setSignState] = useState("Sign In");
@@ -12,64 +14,82 @@ const Login = () => {
     const [registeredUsers, setRegisteredUsers] = useState({});
     const navigate = useNavigate();
 
-    const isValidEmail = (email) => email.endsWith("@gmail.com");
+    // Improved email validation
+    const isValidEmail = (email) => {
+        const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return regex.test(email) && email.endsWith("@gmail.com");
+    };
+
     const isRegisteredUser = (email, password) => registeredUsers[email] === password;
     
     const userAuth = async (event) => {
         event.preventDefault();
 
+        // Reset any previous toast notifications
+        toast.dismiss();
+
+        // Common validation
+        if (!email || !password) {
+            return toast.error("Email and password must be filled in!");
+        }
+
+        if (!email) {
+            return toast.error("Email is required!");
+        }
+
+        if (!isValidEmail(email)) {
+            return toast.error("Please enter a valid Gmail address!");
+        }
+
         if (signState === "Sign In") {
-            if (!email || !password) {
-                return alert("Email and password must be filled in!");
-            }
-            if (!isValidEmail(email)) {
-                return alert("Email must use @gmail.com!");
-            }
             if (!isRegisteredUser(email, password)) {
-                return alert("Incorrect email or password, or the account is not registered!");
+                return toast.error("Incorrect email or password, or the account is not registered!");
             }
+
             try {
                 await login(email, password);
                 localStorage.setItem("userEmail", email);
-                alert("Login successful!");
-                navigate("/home");
+                toast.success("Login successful!");  // Success message after login
+    
+                // Wait a little before navigating
+                setTimeout(() => {
+                    // Make sure to navigate only if userEmail is set
+                    if (localStorage.getItem("userEmail")) {
+                        navigate("/home");
+                    }
+                }, 1500);
             } catch (error) {
                 console.error(error);
-                alert(`Login failed: ${error.message}`);
-
+                toast.error(`Login failed: ${error.message}`);
             }
         } else {
             if (!name) {
-                return alert("Name must be filled in!");
+                return toast.error("Name must be filled in!");
             }
-            if (!email) {
-                return alert("Email must be filled in!");
+
+            if (password.length < 8) {
+                return toast.error("Password should be at least 8 characters!");
             }
-            if (!isValidEmail(email)) {
-                return alert("Email must use @gmail.com!");
-            }
-            if (!password) {
-                return alert("Password must be filled in!");
-            }
+
             try {
                 await signup(name, email, password);
                 setRegisteredUsers((prev) => ({ ...prev, [email]: password }));
-                alert("Registration successful! Please log in.");
+                toast.success("Registration successful! Please log in.");
                 setSignState("Sign In");
                 setEmail(email);
                 setPassword("");
             } catch (error) {
                 console.error(error);
-                alert(`Registration failed: ${error.message}`);
+                toast.error(`Registration failed: ${error.message}`);
             }
         }
     };
 
     return (
-        <div className='login'>
+        <div className="login">
             <div className="login-form">
-                <img src={logo} className='login-logo' alt='Logo' />
-                <form onSubmit={userAuth}>
+                <img src={logo} className="login-logo" alt="Logo" />
+                <form onSubmit={userAuth} noValidate> {/* Added noValidate to prevent browser validation */}
                     {signState === "Sign Up" && (
                         <input value={name} onChange={(e) => setName(e.target.value)} type="text" placeholder="Enter Name" />
                     )}
@@ -79,6 +99,7 @@ const Login = () => {
                         {signState}
                     </button>
                 </form>
+
                 <div className="form-switch">
                     {signState === "Sign In" ? (
                         <p>Don't have an account? <span onClick={() => setSignState("Sign Up")}>Sign Up</span></p>
@@ -87,8 +108,21 @@ const Login = () => {
                     )}
                 </div>
             </div>
+
+            {/* ToastContainer component to show the notifications */}
+            <ToastContainer 
+                position="top-right" 
+                autoClose={3000} 
+                hideProgressBar={true} 
+                closeButton={true} 
+                newestOnTop={false} 
+                rtl={false} 
+                pauseOnFocusLoss={false} 
+                draggable 
+                pauseOnHover={false} 
+            />
         </div>
     );
-}
+};
 
 export default Login;

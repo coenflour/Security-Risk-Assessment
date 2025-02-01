@@ -1,11 +1,15 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 
-const ProtectedRoute = ({ children }) => {
-  const { currentUser } = useAuth(); 
+const ProtectedRoute = ({ element }) => {
+  const userEmail = localStorage.getItem("userEmail");
 
-  return currentUser ? children : <Navigate to="/login" replace />;
+  if (!userEmail) {
+    // Redirect to login page if user is not logged in
+    return <Navigate to="/login" replace />;
+  }
+
+  return element;  // Allow access to protected page if logged in
 };
 
 export default ProtectedRoute;
