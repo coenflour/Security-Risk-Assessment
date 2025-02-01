@@ -1,30 +1,45 @@
 import { useState, useEffect, useRef } from "react";
-import { db } from "../../firebase";
+import { db, auth } from "../../firebase";
 import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import Chart from "chart.js/auto";
 import "./Dashboard.css";
 import user from "../../assets/user.svg";
 import add from "../../assets/add.svg";
+import { useNavigate } from "react-router-dom";
+import { signOut, onAuthStateChanged} from "firebase/auth";
 
 const Dashboard = () => {
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
   const [data, setData] = useState([]);
-  const [userEmail, setUserEmail] = useState(""); 
+  const [userName, setUserName] = useState(""); 
   const [riskCount, setRiskCount] = useState(0);
   const [averageRisk, setAverageRisk] = useState("Low");
   const [chartKey, setChartKey] = useState(0);
+  const [isProfileHovered, setIsProfileHovered] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const email = localStorage.getItem("userEmail");
-    if (email) {
-      setUserEmail(email);
+    const name = localStorage.getItem("userName");
+    console.log("Stored Username:", name);
+    if (name) {
+      setUserName(name);
     }
   }, []);
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        navigate("/login");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [navigate]);
 
   const fetchData = async () => {
     console.log("Fetching data from Firestore...");
@@ -112,12 +127,10 @@ const Dashboard = () => {
     if (chartRef.current) {
       const ctx = chartRef.current.getContext("2d");
   
-      // Destroy previous chart before creating a new one
       if (chartInstance.current) {
         chartInstance.current.destroy();
       }
   
-      // Create a new chart with updated data
       chartInstance.current = new Chart(ctx, {
         type: "doughnut",
         data: {
@@ -134,7 +147,6 @@ const Dashboard = () => {
   };
   
   const getRiskCounts = () => {
-    // Hanya menghitung item yang statusnya "In Progress"
     const inProgressData = data.filter(item => item.status === "In Progress");
     const low = inProgressData.filter(item => item.riskLevel.trim().toUpperCase() === "LOW").length;
     const medium = inProgressData.filter(item => item.riskLevel.trim().toUpperCase() === "MEDIUM").length;
@@ -168,22 +180,49 @@ const Dashboard = () => {
   };
   useEffect(() => {
     if (data.length > 0) {
-      updateChart();  // Memperbarui chart setiap kali data berubah
+      updateChart();  
       const { low, medium, high } = getRiskCounts();
-      setRiskCount(low + medium + high);  // Mengupdate jumlah risiko
-      calculateAverageRisk();  // Menghitung rata-rata risiko setelah data diupdate
+      setRiskCount(low + medium + high); 
+      calculateAverageRisk();  
       updateChart();
       calculateAverageRisk();
     }
-  }, [data]);  // Men-trigger efek ini setiap kali 'data' berubah   
+  }, [data]);  
+
+  const handleLogout = () => {
+    // Remove user data from localStorage
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("userName");
+
+    // Sign out the user from Firebase Auth
+    signOut(auth)
+        .then(() => {
+            console.log("Logout successful");
+
+            navigate("/login");
+        })
+        .catch((error) => {
+            console.log("Logout failed:", error.message);
+            alert("Logout failed: " + error.message); 
+        });
+};
+
+
 
   return (
     <div className="container">
       <div className="header">
-        <div className="profile-card">
+      <div className="profile-card" 
+             onMouseEnter={() => setIsProfileHovered(true)} 
+             onMouseLeave={() => setIsProfileHovered(false)}>
           <div className="profile-header">
             <img src={user} alt="Profile" className="profile-picture" />
-            <span>{userEmail || "User101"}</span> 
+            <span>{userName || "User101"}</span>
+            {isProfileHovered && (
+              <div className="logout-option" onClick={handleLogout}>
+                Logout
+              </div>
+            )}
           </div>
         </div>
         <a href="/assesment" className="add-record-card">
@@ -265,7 +304,7 @@ const Dashboard = () => {
           </div>
           <div className="bottom-box">
           <div className="average-risk">
-            <span className={averageRisk.toLowerCase()}>{averageRisk}</span>
+            <span style={{color:averageRisk === 'Low'? 'limegreen': averageRisk === 'Medium'? '#ff9800': '#f44336',}}>{averageRisk}</span>
             <p>Average Risk</p>
           </div>
         </div>

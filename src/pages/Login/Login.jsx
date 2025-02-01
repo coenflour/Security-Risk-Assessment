@@ -3,8 +3,9 @@ import "./Login.css";
 import logo from "../../assets/logo.png";
 import { login, signup } from "../../firebase";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from 'react-toastify';  // Import Toastify
-import 'react-toastify/dist/ReactToastify.css';  // Import Toastify styles
+import { ToastContainer, toast } from 'react-toastify';  
+import 'react-toastify/dist/ReactToastify.css'; 
+
 
 const Login = () => {
     const [signState, setSignState] = useState("Sign In");
@@ -49,11 +50,9 @@ const Login = () => {
             try {
                 await login(email, password);
                 localStorage.setItem("userEmail", email);
-                toast.success("Login successful!");  // Success message after login
-    
-                // Wait a little before navigating
+                localStorage.setItem("userName", name); // Simpan nama pengguna
+                toast.success("Login successful!");
                 setTimeout(() => {
-                    // Make sure to navigate only if userEmail is set
                     if (localStorage.getItem("userEmail")) {
                         navigate("/home");
                     }
@@ -77,7 +76,7 @@ const Login = () => {
                 toast.success("Registration successful! Please log in.");
                 setSignState("Sign In");
                 setEmail(email);
-                setPassword("");
+                setPassword(password);  
             } catch (error) {
                 console.error(error);
                 toast.error(`Registration failed: ${error.message}`);

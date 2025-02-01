@@ -9,7 +9,7 @@
   min-height: 490px; 
   overflow: hidden;
 }
-h2 {
+.container2 h2 {
   font-size: 24px;
   color: #000000;  
   text-align: center;
@@ -35,7 +35,7 @@ input[type="text"]:focus {
   border-color: #5E72EB;
   outline: none;
 }
-button {
+.container2 button {
   padding: 10px 20px;
   font-size: 16px;
   border: none;

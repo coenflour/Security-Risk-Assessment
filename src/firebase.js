@@ -1,4 +1,4 @@
-// Import the functions you need from the SDKs you need
+
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
@@ -40,18 +40,19 @@ const signup = async (name, email, password)=> {
         }
     }
 }
-const login = async(email, password)=>{
+const login = async (email, password) => {
     try {
-        await signInWithEmailAndPassword(auth,email, password);
+        const res = await signInWithEmailAndPassword(auth, email, password);
+        console.log("Login Success:", res.user);  // Pastikan login berhasil
     } catch (error) {
-        console.log(error);
-        alert(error);
+        console.log("Login Failed:", error);  // Cek error yang terjadi
+        alert("Login failed: " + error.message);
     }
-}
+};
 
 const logout = ()=> {
     signOut(auth);
 }
 
 
-export {auth, db, login, signup, logout, collection}
+export {auth, db, login, signup, logout, collection, getAuth, app, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onSnapshot, addDoc}
