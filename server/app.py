@@ -1,12 +1,12 @@
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, jsonify
 import requests
-import json
 import time
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)  # Allow cross-origin requests
 
-# Replace with your VirusTotal API key
-API_KEY = "aa111abfc7a05610f1e30043bdebd98a9702c46f5665e6867253f067395c38fd"
+API_KEY = "7325eb38b847fc72fecc7dacbae5ec1fd8bf92bd1eb299a3f4aedd13c5ca34d4"
 
 def format_url(url):
     """Ensure the URL starts with http:// or https://"""
@@ -30,19 +30,31 @@ def check_url_safety(url):
 
     # Fetch analysis results
     analysis_url = f"https://www.virustotal.com/api/v3/analyses/{analysis_id}"
-    response = requests.get(analysis_url, headers=headers)
-    scan_results = response.json()
+    
+    # Poll until the analysis is complete
+    while True:
+        response = requests.get(analysis_url, headers=headers)
+        if response.status_code != 200:
+            return {"error": f"Error fetching analysis results: {response.text}"}
+        
+        scan_results = response.json()
+        status = scan_results.get("data", {}).get("attributes", {}).get("status", "")
+        
+        if status == "completed":
+            break  # Analysis is done
+        
+        time.sleep(10)  # Wait before retrying
 
     # Extract relevant stats
-    stats = scan_results["data"]["attributes"]["stats"]
+    stats = scan_results.get("data", {}).get("attributes", {}).get("stats", {})
     malicious = stats.get("malicious", 0)
     suspicious = stats.get("suspicious", 0)
     undetected = stats.get("undetected", 0)
 
     # Determine safety level
-    if undetected > 20:
+    if malicious > 1:
         safety_status = "Malicious 🚨"
-    elif undetected > 10:
+    elif suspicious >= 1 or undetected >= 30:
         safety_status = "Suspicious ⚠️"
     else:
         safety_status = "Safe ✅"
@@ -58,14 +70,15 @@ def check_url_safety(url):
 @app.route("/", methods=["GET", "POST"])
 def home():
     if request.method == "POST":
-        url = request.form.get("url")
+        data = request.get_json()
+        url = data.get("url")
         if not url:
-            return render_template("index.html", error="Please enter a URL.")
+            return jsonify({"error": "Please enter a URL."})
         
         result = check_url_safety(url)
-        return render_template("index.html", result=result)
+        return jsonify(result)
 
-    return render_template("index.html")
+    return jsonify({"error": "Invalid request method."})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5000)

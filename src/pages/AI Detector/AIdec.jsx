@@ -2,87 +2,84 @@ import React, { useState } from "react";
 import './AIdec.css';  
 import Navbar from "../../components/Navbar";
 
+
 const AIdec = () => {
   const [url, setUrl] = useState("");
-  const [threatLevel, setThreatLevel] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // Define the loading state
 
   const checkThreatLevel = async () => {
-    if (!url) return;
+    setResult(null);
+    setError("");
 
-    setLoading(true);
-    setThreatLevel(null);
-
+    if (!url) {
+      setError("Please enter a URL.");
+      return;
+    }
+    
     try {
-      const response = await fetch("https://localhost/events/restSearch", {
-        method: "POST",
+      // Send a POST request to the Flask backend
+      const response = await fetch('http://localhost:5000', {
+        method: 'POST',
         headers: {
-          "Authorization": "ckSQEP47q4YagBuJxdfPGv0pbq63PaDAuXHjrtLr",
-          "Content-Type": "application/json"
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          returnFormat: "json",
-          values: url, 
-          enforceWarninglist: true 
-        })
+        body: JSON.stringify({ url }),
       });
 
       const data = await response.json();
 
-      if (data.response.Attribute.length > 0) {
-        const threatTypes = data.response.Attribute.map(attr => attr.category);
-        if (threatTypes.includes("High")) {
-          setThreatLevel("High");
-        } else if (threatTypes.includes("Medium")) {
-          setThreatLevel("Medium");
-        } else {
-          setThreatLevel("Low");
-        }
+      if (data.error) {
+        setError(data.error);
+        setResult(null);
       } else {
-        setThreatLevel("Low"); 
+        setResult(data);
+        setError("");
       }
-    } catch (error) {
-      console.error("Error fetching threat level:", error);
-      setThreatLevel("Error"); 
+    } catch (err) {
+      setError("An error occurred. Please try again.");
+      setResult(null);
+    } finally {
+      setLoading(false); // Set loading to false when the request is complete
     }
-
-    setLoading(false);
   };
 
   return (
     <div>
       <Navbar />
       <div className="container2">
-      <h2>Threat Level Detector</h2>
-      <div className="input-group">
-        <input 
-          type="text" 
-          placeholder="Enter URL" 
-          value={url} 
-          onChange={(e) => setUrl(e.target.value)} 
-        />
-        <button onClick={checkThreatLevel}>
-          Check Threat Level
-        </button>
+        <h2>URL Security Scanner</h2>
+        <div className="input-group">
+          <input 
+            type="text" 
+            placeholder="Enter URL"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+          />
+          <button onClick={checkThreatLevel}>Check</button>
+        </div>
+
+        {loading && <p>Loading...</p>}  {/* Show loading message here */}
+        {error && <p style={{ color: "red" }}>{error}</p>}
+
+        {result && (
+          <div className="URLresult">
+            <h3>Scan Results</h3>
+            <p><strong>URL:</strong> {result.url}</p>
+            <p><strong>Malicious Reports:</strong> {result.malicious_reports}</p>
+            <p><strong>Suspicious Reports:</strong> {result.suspicious_reports}</p>
+            <p><strong>Undetected Reports:</strong> {result.undetected_reports}</p>
+            <div className="statusURL">
+              <h3>Status: {result.safety_status}</h3>
+            </div>
+          </div>
+        )}
       </div>
-
-      {loading && <p>Loading...</p>}
-
-      {threatLevel && !loading && (
-        <p>
-          Threat Level : 
-          {threatLevel === "Low" && <span className="low"> 🟢 Low</span>}
-          {threatLevel === "Medium" && <span className="medium"> 🟡 Medium</span>}
-          {threatLevel === "High" && <span className="high"> 🔴 High</span>}
-          {threatLevel === "Error" && <span className="error"> 🔴 Error fetching data</span>}
-        </p>
-      )}
-    </div>
-    <div className='footer'>
+      <div className="footer">
         &copy; 2025 RiskAnalyze. All Rights Reserved.
       </div>
     </div>
-    
   );
 };
 

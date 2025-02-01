@@ -27,7 +27,6 @@
 .add-record-content {
   display: flex;
   align-items: center;
-  gap: 8px;
 }
 .add-record-card {
   text-decoration: none;
@@ -101,7 +100,7 @@
 }
 
 .bottom-box {
-  background-color: #f8f9fa;
+  background-color: #3d566e;
 }
 
 .risk-number {
@@ -262,13 +261,13 @@ option {
   padding-left: 12px;
 }
 
-
-.impact-priority td span.checked {
-  color: black;
-}
-
-.impact-priority td span.empty {
-  background-color: #fff;
+.impact-priority td span {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  line-height: 12px;
+  text-align: center;
+  color: #333;
 }
 
 .footer {
@@ -279,19 +278,24 @@ option {
   color: white;
   border-radius: 5px;
 }
-
-.bottom-box span {
-  font-size: 30px;
-  font-weight: bold;
-  color: #000;
-  margin-bottom: 40px;
+.bottom-box {
+  background-color: #f8f9fa;
+  margin-top: 10px;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-
 .average-risk span {
-  font-size: 1.5rem;
+  font-size: 28px;
   font-weight: bold;
-  margin-bottom: 5px;
+}
+.average-risk p {
+  margin-top: 55px; 
 }
 
 .average-risk .low-risk {

@@ -1,11 +1,3 @@
-h2 {
-  font-size: 24px;
-  color: #000000;  /* Font color changed */
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-/* Container Style */
 .container2 {
   background-color: #fff;
   padding: 30px;
@@ -14,34 +6,35 @@ h2 {
   max-width: 500px;
   margin: 50px auto;
   text-align: center;
-  display: flex;
-  flex-direction: column;
   min-height: 490px; 
+  overflow: hidden;
 }
-
-/* Input Styles */
+h2 {
+  font-size: 24px;
+  color: #000000;  
+  text-align: center;
+}
 .input-group {
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  margin-bottom: 20px;
+  align-items: center;
+  margin-bottom: 10px;
+  width: 100%;
 }
-
 input[type="text"] {
   padding: 10px;
-  width: 80%;
   border: 2px solid #ddd;
   border-radius: 4px;
   font-size: 16px;
-  margin-right: 10px;
+  width: 100%;
   box-sizing: border-box;
+  height: 40px;
 }
-
 input[type="text"]:focus {
   border-color: #5E72EB;
   outline: none;
 }
-
-/* Button Styles */
 button {
   padding: 10px 20px;
   font-size: 16px;
@@ -51,42 +44,37 @@ button {
   cursor: pointer;
   border-radius: 4px;
   transition: background-color 0.3s;
+  height: 40px;
+  width: 100%;
 }
-
 button:hover {
   background-color: #0D0745;
 }
-
 button:active {
   background-color: #0D0745;
 }
-
-/* Loading text */
-p {
+.URLresult p{
   font-size: 16px;
-  color: #555;
+  color: #3d3c3c;  
+  text-align: left;
+  word-wrap: break-word;  
+  overflow-wrap: break-word; 
+  word-break: break-word; 
 }
-
-/* Threat Level Indicator */
-p span {
-  font-weight: bold;
-  font-size: 18px;
+.safe {
+  background-color: #d4edda;
+  color: #155724;
 }
-
-span.low {
-  color: #4CAF50;  /* Green for Low */
+.suspicious {
+  background-color: #fff3cd;
+  color: #856404;
 }
-
-span.medium {
-  color: #FF9800;  /* Orange for Medium */
+.malicious {
+  background-color: #f8d7da;
+  color: #721c24;
 }
-
-span.high {
-  color: #F44336;  /* Red for High */
-}
-
-span.error {
-  color: #550505;  /* Red for Error */
+.statusURL{
+  margin-top: 10px;
 }
 .footer {
   margin-top: auto;

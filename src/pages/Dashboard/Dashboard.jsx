@@ -13,6 +13,7 @@ const Dashboard = () => {
   const [userEmail, setUserEmail] = useState(""); 
   const [riskCount, setRiskCount] = useState(0);
   const [averageRisk, setAverageRisk] = useState("Low");
+  const [chartKey, setChartKey] = useState(0);
 
   useEffect(() => {
     const email = localStorage.getItem("userEmail");
@@ -52,42 +53,43 @@ const Dashboard = () => {
 
     console.log("Processed Assessments:", assessments);
     setData(assessments);
+
+    updateChart();
+    calculateAverageRisk();
   };
 
   const handleRiskLevelChange = async (id, newRiskLevel) => {
-    const upperCaseRisk = newRiskLevel.toUpperCase(); // Fix case
+    const upperCaseRisk = newRiskLevel.toUpperCase();
     console.log(`Updating risk level for ${id} to ${upperCaseRisk}`);
-
+  
+    // Update data in state
     const updatedData = data.map(item =>
       item.id === id ? { ...item, riskLevel: upperCaseRisk } : item
     );
     setData(updatedData);
-
+  
+    // Update Firestore document
     const assessmentDoc = doc(db, "assessments", id);
     await updateDoc(assessmentDoc, {
       "phase4.impactLevel": upperCaseRisk,
     });
-
-    console.log("Updated Firestore successfully");
-    fetchData();
   };
 
   const handleStatusChange = async (id, newStatus) => {
-    console.log(`Updating status for ${id} to ${newStatus}`);
+  console.log(`Updating status for ${id} to ${newStatus}`);
 
-    const updatedData = data.map(item =>
-      item.id === id ? { ...item, status: newStatus } : item
-    );
-    setData(updatedData);
+  // Update data in state
+  const updatedData = data.map(item =>
+    item.id === id ? { ...item, status: newStatus } : item
+  );
+  setData(updatedData);
 
-    const assessmentDoc = doc(db, "assessments", id);
-    await updateDoc(assessmentDoc, {
-      "phase4.status": newStatus,
-    });
-
-    console.log("Updated Firestore successfully");
-    fetchData();
-  };
+  // Update Firestore document
+  const assessmentDoc = doc(db, "assessments", id);
+  await updateDoc(assessmentDoc, {
+    "phase4.status": newStatus,
+  });
+};
 
   const getRiskLevelClass = (level) => {
     switch(level) {
@@ -106,14 +108,16 @@ const Dashboard = () => {
     const low = data.filter(item => item.riskLevel.trim().toUpperCase() === "LOW").length;
     const medium = data.filter(item => item.riskLevel.trim().toUpperCase() === "MEDIUM").length;
     const high = data.filter(item => item.riskLevel.trim().toUpperCase() === "HIGH").length;
-
+  
     if (chartRef.current) {
       const ctx = chartRef.current.getContext("2d");
-
+  
+      // Destroy previous chart before creating a new one
       if (chartInstance.current) {
         chartInstance.current.destroy();
       }
-
+  
+      // Create a new chart with updated data
       chartInstance.current = new Chart(ctx, {
         type: "doughnut",
         data: {
@@ -128,24 +132,32 @@ const Dashboard = () => {
       });
     }
   };
-
+  
   const getRiskCounts = () => {
-    const low = data.filter(item => item.riskLevel.trim().toUpperCase() === "LOW").length;
-    const medium = data.filter(item => item.riskLevel.trim().toUpperCase() === "MEDIUM").length;
-    const high = data.filter(item => item.riskLevel.trim().toUpperCase() === "HIGH").length;
-
+    // Hanya menghitung item yang statusnya "In Progress"
+    const inProgressData = data.filter(item => item.status === "In Progress");
+    const low = inProgressData.filter(item => item.riskLevel.trim().toUpperCase() === "LOW").length;
+    const medium = inProgressData.filter(item => item.riskLevel.trim().toUpperCase() === "MEDIUM").length;
+    const high = inProgressData.filter(item => item.riskLevel.trim().toUpperCase() === "HIGH").length;
+  
     return { low, medium, high };
   };
-
-  // Calculate the average risk based on counts
+  
   const calculateAverageRisk = () => {
     const { low, medium, high } = getRiskCounts();
     const total = low + medium + high;
+    
+    // Avoid division by zero
+    if (total === 0) {
+      setAverageRisk("Low"); // Or any default risk level you'd like to show
+      return;
+    }
+  
     const percentageLow = (low / total) * 100;
     const percentageMedium = (medium / total) * 100;
     const percentageHigh = (high / total) * 100;
-
-    // Determine average risk based on percentage
+  
+    // Update average risk based on the highest percentage
     if (percentageLow > percentageMedium && percentageLow > percentageHigh) {
       setAverageRisk("Low");
     } else if (percentageMedium > percentageLow && percentageMedium > percentageHigh) {
@@ -154,15 +166,16 @@ const Dashboard = () => {
       setAverageRisk("High");
     }
   };
-
   useEffect(() => {
     if (data.length > 0) {
-      updateChart();
+      updateChart();  // Memperbarui chart setiap kali data berubah
       const { low, medium, high } = getRiskCounts();
-      setRiskCount(low + medium + high);
-      calculateAverageRisk();  // Update the average risk
+      setRiskCount(low + medium + high);  // Mengupdate jumlah risiko
+      calculateAverageRisk();  // Menghitung rata-rata risiko setelah data diupdate
+      updateChart();
+      calculateAverageRisk();
     }
-  }, [data]);
+  }, [data]);  // Men-trigger efek ini setiap kali 'data' berubah   
 
   return (
     <div className="container">
@@ -251,9 +264,11 @@ const Dashboard = () => {
             <p>Risk Analyzed</p>
           </div>
           <div className="bottom-box">
-              <span className={averageRisk.toLowerCase()}>{averageRisk}</span>
-              <p>Average Risk</p>
+          <div className="average-risk">
+            <span className={averageRisk.toLowerCase()}>{averageRisk}</span>
+            <p>Average Risk</p>
           </div>
+        </div>
         </div>
 
         <div className="form-result">
