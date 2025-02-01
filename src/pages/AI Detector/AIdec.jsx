@@ -7,7 +7,7 @@ const AIdec = () => {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // Define the loading state
+  const [loading, setLoading] = useState(false); 
 
   const checkThreatLevel = async () => {
     setResult(null);
@@ -19,7 +19,6 @@ const AIdec = () => {
     }
     
     try {
-      // Send a POST request to the Flask backend
       const response = await fetch('http://localhost:5000', {
         method: 'POST',
         headers: {
@@ -41,7 +40,7 @@ const AIdec = () => {
       setError("An error occurred. Please try again.");
       setResult(null);
     } finally {
-      setLoading(false); // Set loading to false when the request is complete
+      setLoading(false);
     }
   };
 

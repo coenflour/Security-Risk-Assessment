@@ -1,8 +1,50 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './aboutus.css';
 import Navbar from '../../components/Navbar';
+import emailjs from 'emailjs-com';
+import { toast, ToastContainer } from 'react-toastify';  
+import 'react-toastify/dist/ReactToastify.css';
 
 const AboutUs = () => {
+  const [userEmail, setUserEmail] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);  
+
+  useEffect(() => {
+    const email = localStorage.getItem("userEmail");
+    if (email) {
+      setUserEmail(email);
+    }
+  }, []);
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+
+    if (!userEmail || !/\S+@\S+\.\S+/.test(userEmail)) {
+      alert('Please enter a valid email address!');
+      return;
+    }
+    const templateParams = {
+      email: userEmail,
+    };
+
+    emailjs.send('service_7p0dlrb', 'template_8tial2z', templateParams, 'fRH3TE4VuREKWpIlT')
+      .then((response) => {
+        console.log('Email sent successfully:', response);
+        setSubscribed(true);
+        toast.success(`Thank you for subscribing with ${userEmail}!`);  
+        setShowPopup(true);
+      })
+      .catch((error) => {
+        console.error('Failed to send email:', error);
+        toast.error('Something went wrong. Please try again later.');
+      });
+  };
+
+  const closePopup = () => {
+    setShowPopup(false); 
+  };
+
   return (
     <div>
       <Navbar />
@@ -42,8 +84,14 @@ const AboutUs = () => {
             <div className="newsletter">
               <h3>Sign Up for Our Newsletter</h3>
               <p>Get the latest info about <br /> Cyber Security Risks!</p>
-              <input type="email" placeholder="Enter your email" required />
-              <button type="submit">Subscribe</button>
+              <input 
+                type="email" 
+                placeholder="Enter your email" 
+                value={userEmail} 
+                onChange={(e) => setUserEmail(e.target.value)} 
+                required 
+              />
+              <button onClick={handleSubscribe}>Subscribe</button>
             </div>
           </div>
         </div>
@@ -51,6 +99,19 @@ const AboutUs = () => {
       <div className="footer">
           &copy; 2025 RiskAnalyze. All Rights Reserved.
       </div>
+
+      {/* Popup notification */}
+      {showPopup && (
+        <div className="popup">
+          <div className="popup-content">
+            <h3>Subscription Successful!</h3>
+            <p>Thank you for subscribing, {userEmail}!</p>
+            <button onClick={closePopup}>Close</button>
+          </div>
+        </div>
+      )}
+
+      <ToastContainer />
     </div>
   );
 };

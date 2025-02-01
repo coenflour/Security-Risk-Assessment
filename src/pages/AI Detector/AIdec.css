@@ -11,7 +11,7 @@
 }
 .container2 h2 {
   font-size: 24px;
-  color: #000000;  
+  color: #332a68;  
   text-align: center;
 }
 .input-group {
@@ -22,7 +22,7 @@
   margin-bottom: 10px;
   width: 100%;
 }
-input[type="text"] {
+.container2 input[type="text"] {
   padding: 10px;
   border: 2px solid #ddd;
   border-radius: 4px;
@@ -31,7 +31,7 @@ input[type="text"] {
   box-sizing: border-box;
   height: 40px;
 }
-input[type="text"]:focus {
+.container2 input[type="text"]:focus {
   border-color: #5E72EB;
   outline: none;
 }
