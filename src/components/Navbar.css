@@ -17,23 +17,28 @@
 }
 .navbar-left img{
     width: 170px;
-    margin-left: 20px;
+    margin: 20px;
 }
 .navbar-left ul{
     display: flex;
     list-style: none;
-    gap: 80px;
+    gap: 65px;
     font-weight: bold;
 }
 .navbar-left ul li{
     cursor: pointer;
+    position: relative;
 }
 .navbar-left ul li a {
     text-decoration: none; 
     color: inherit; 
 }
 
-.navbar-left ul li a:active, 
+.navbar-left ul li a.active {
+    color: white; 
+    font-weight: bold;
+}
+
 .navbar-left ul li a:focus {
     outline: none;
     color: inherit;

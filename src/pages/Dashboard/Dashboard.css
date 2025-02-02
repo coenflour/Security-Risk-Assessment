@@ -19,7 +19,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
-  position: relative; /* Make sure the logout option is positioned relative to this */
+  position: relative; 
   text-decoration: none;
   color: inherit;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -38,19 +38,27 @@
 
 .logout-option {
   position: absolute;
-  top: 50px;
+  top: 58px;
   left: 0;
-  padding: 5px 10px;
-  background-color: #627bbe;
+  padding: 6px 70px;
+  background-color: #e74d3ce1; 
   color: white;
-  border-radius: 5px;
+  border-radius: 8px; 
   cursor: pointer;
-  display: none; /* Initially hidden */
+  font-weight: bold; 
+  display: none;
+  transition: transform 0.2s ease; 
+}
+
+.logout-option:hover {
+  background-color: #c0392b; 
+  transform: translateY(-5px); 
 }
 
 .profile-card:hover .logout-option {
-  display: block; /* Show logout option on hover */
+  display: block; 
 }
+
 
 .add-record-content {
   display: flex;
@@ -61,6 +69,12 @@
   text-decoration: none;
   color: inherit;
   font-weight: bold;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.add-record-card:hover {
+  transform: translateY(-5px); 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .profile-header {

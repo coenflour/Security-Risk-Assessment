@@ -1,6 +1,7 @@
 .department {
     padding: 30px;
     margin-top: 20px;
+    min-height: 76vh;
 }
 .department-container {
   background-color: rgba(247, 247, 247, 0.75);
@@ -109,4 +110,12 @@ label {
 .department .button img {
     width: 25px;
     height: 25px;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 30px;
+  padding: 10px;
+  background: #5E72EB;
+  color: white;
 }

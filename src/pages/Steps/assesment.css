@@ -5,7 +5,7 @@ h2, h3 {
 }
 
 form {
-    background-color: #b0b7df;
+    background-color: rgba(255, 255, 255, 0.75);
     margin: 25px auto;
     padding: 20px;
     border: 1px solid #0B0742;

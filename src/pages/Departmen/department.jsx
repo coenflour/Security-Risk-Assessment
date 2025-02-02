@@ -59,7 +59,8 @@ const Department = () => {
 
   const downloadPDF = () => {
     const doc = new jsPDF('landscape');
-    const tableData = assessmentData.map((data) => {
+    const filteredData = assessmentData.filter((data) => selectedYear === '' || data.year === selectedYear);
+    const tableData = filteredData.map((data) => {
       const phase3 = data.phase3 || {};
       const phase4 = data.phase4 || {};
       return [
