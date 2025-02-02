@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { db, auth } from "../../firebase";
-import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
+import { collection, getDocs, updateDoc, doc, query, where } from "firebase/firestore";
 import Chart from "chart.js/auto";
 import "./Dashboard.css";
 import user from "../../assets/user.svg";
 import add from "../../assets/add.svg";
 import { useNavigate } from "react-router-dom";
-import { signOut, onAuthStateChanged} from "firebase/auth";
+import { signOut, onAuthStateChanged,} from "firebase/auth";
 
 const Dashboard = () => {
   const chartRef = useRef(null);
@@ -19,13 +19,6 @@ const Dashboard = () => {
   const [isProfileHovered, setIsProfileHovered] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const name = localStorage.getItem("userName");
-    console.log("Stored Username:", name);
-    if (name) {
-      setUserName(name);
-    }
-  }, []);
 
   useEffect(() => {
     fetchData();
@@ -35,6 +28,21 @@ const Dashboard = () => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
         navigate("/login");
+      } else {
+        const fetchUserName = async () => {
+          const userRef = collection(db, "user");
+          const q = query(userRef, where("uid", "==", user.uid));
+          const querySnapshot = await getDocs(q);
+
+          if (!querySnapshot.empty) {
+            const userData = querySnapshot.docs[0].data();
+            setUserName(userData.name);
+          }
+          setData([]);
+          fetchData();
+        };
+        
+        fetchUserName();
       }
     });
 
@@ -42,48 +50,49 @@ const Dashboard = () => {
   }, [navigate]);
 
   const fetchData = async () => {
-    console.log("Fetching data from Firestore...");
+    const user = auth.currentUser;  
+    if (!user) return; 
+  
+    const userUid = user.uid; 
+  
     const querySnapshot = await getDocs(collection(db, "assessments"));
     const assessments = [];
-
+  
     querySnapshot.forEach((doc) => {
       const docData = doc.data();
-      console.log("Fetched Document:", docData); // Debugging log
-
-      const timestamp = docData.timestamp;
-      let formattedDate = "Unknown";
-      if (timestamp && timestamp.toDate) {
-        formattedDate = timestamp.toDate().toLocaleDateString("en-GB");
+      if (docData.user?.uid === userUid) {
+        const timestamp = docData.timestamp;
+        let formattedDate = "Unknown";
+        if (timestamp && timestamp.toDate) {
+          formattedDate = timestamp.toDate().toLocaleDateString("en-GB");
+        }
+  
+        assessments.push({
+          id: doc.id,
+          title: docData.phase3?.areaOfConcern || "Unknown",
+          date: formattedDate,
+          riskLevel: docData.phase4?.impactLevel?.toUpperCase() || "UNKNOWN",
+          status: docData.phase4?.status || "In Progress",
+          asset: docData.phase3?.affectedAsset || "Unknown"
+        });
       }
-
-      assessments.push({
-        id: doc.id,
-        title: docData.phase3?.areaOfConcern || "Unknown",
-        date: formattedDate,
-        riskLevel: docData.phase4?.impactLevel?.toUpperCase() || "UNKNOWN", // Fix case
-        status: docData.phase4?.status || "In Progress",
-        asset: docData.phase3?.affectedAsset || "Unknown"
-      });
     });
-
-    console.log("Processed Assessments:", assessments);
+  
     setData(assessments);
-
     updateChart();
     calculateAverageRisk();
   };
+  
 
   const handleRiskLevelChange = async (id, newRiskLevel) => {
     const upperCaseRisk = newRiskLevel.toUpperCase();
     console.log(`Updating risk level for ${id} to ${upperCaseRisk}`);
   
-    // Update data in state
     const updatedData = data.map(item =>
       item.id === id ? { ...item, riskLevel: upperCaseRisk } : item
     );
     setData(updatedData);
-  
-    // Update Firestore document
+
     const assessmentDoc = doc(db, "assessments", id);
     await updateDoc(assessmentDoc, {
       "phase4.impactLevel": upperCaseRisk,
@@ -93,13 +102,11 @@ const Dashboard = () => {
   const handleStatusChange = async (id, newStatus) => {
   console.log(`Updating status for ${id} to ${newStatus}`);
 
-  // Update data in state
   const updatedData = data.map(item =>
     item.id === id ? { ...item, status: newStatus } : item
   );
   setData(updatedData);
 
-  // Update Firestore document
   const assessmentDoc = doc(db, "assessments", id);
   await updateDoc(assessmentDoc, {
     "phase4.status": newStatus,
@@ -159,9 +166,8 @@ const Dashboard = () => {
     const { low, medium, high } = getRiskCounts();
     const total = low + medium + high;
     
-    // Avoid division by zero
     if (total === 0) {
-      setAverageRisk("Low"); // Or any default risk level you'd like to show
+      setAverageRisk("Low");
       return;
     }
   
@@ -169,7 +175,6 @@ const Dashboard = () => {
     const percentageMedium = (medium / total) * 100;
     const percentageHigh = (high / total) * 100;
   
-    // Update average risk based on the highest percentage
     if (percentageLow > percentageMedium && percentageLow > percentageHigh) {
       setAverageRisk("Low");
     } else if (percentageMedium > percentageLow && percentageMedium > percentageHigh) {
@@ -189,25 +194,17 @@ const Dashboard = () => {
     }
   }, [data]);  
 
-  const handleLogout = () => {
-    // Remove user data from localStorage
-    localStorage.removeItem("userEmail");
-    localStorage.removeItem("userName");
-
-    // Sign out the user from Firebase Auth
-    signOut(auth)
-        .then(() => {
-            console.log("Logout successful");
-
-            navigate("/login");
-        })
-        .catch((error) => {
-            console.log("Logout failed:", error.message);
-            alert("Logout failed: " + error.message); 
-        });
-};
-
-
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("userName");
+      navigate("/login");  
+    } catch (error) {
+      console.log("Logout failed:", error.message);
+      alert("Logout failed: " + error.message);
+    }
+  };  
 
   return (
     <div className="container">
@@ -240,7 +237,7 @@ const Dashboard = () => {
         </div>
 
         <div className="card impact-priority">
-          <h3>Impact Areas Priority</h3>
+          <h3>Impact Areas Priority</h3>  {data.length > 0 ? (
           <table>
             <thead>
               <tr>
@@ -294,7 +291,7 @@ const Dashboard = () => {
                 <td colSpan="1"></td>
               </tr>
             </tbody>
-          </table>
+          </table>):(<p>No data available yet. Please add a record.</p>)}
         </div>
 
         <div id="right-section">

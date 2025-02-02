@@ -3,7 +3,8 @@ import Navbar from '../../components/Navbar';
 import './assesment.css';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../../firebase';  
-import { collection, addDoc, updateDoc, doc, getDocs } from 'firebase/firestore'; // Import Firestore methods
+import { collection, addDoc, updateDoc, doc, getDocs } from 'firebase/firestore'; 
+import { getAuth, updateProfile } from 'firebase/auth';
 
 const Assesment = () => {
   const [currentPhase, setCurrentPhase] = useState(1);
@@ -42,37 +43,42 @@ const Assesment = () => {
     }
   });
 
-  const [showPopup, setShowPopup] = useState(false); // state for popup
+  const [showPopup, setShowPopup] = useState(false); 
   const navigate = useNavigate();
 
   const handleSaveForm = async () => {
     try {
+      const auth = getAuth();
+      const user = auth.currentUser; 
+
+      const { uid } = user;
+      const assessmentsRef = collection(db, 'users', uid, 'assessments');
+      const newAssessmentRef = doc(assessmentsRef, `assessment_${Date.now()}`);
+
       if (!docId) {
-        // Menyimpan data untuk pertama kali saat Phase 1 selesai
         const docRef = await addDoc(collection(db, 'assessments'), {
           phase1: formData.phase1,
           phase2: formData.phase2,
           phase3: formData.phase3,
           phase4: formData.phase4,
+          user: { uid }, 
           timestamp: new Date()
         });
-        setDocId(docRef.id); // Menyimpan ID dokumen
+        setDocId(docRef.id);
         console.log('Form data saved to Firestore with docId:', docRef.id);
       } else {
-        // Memperbarui dokumen yang sudah ada
         await updateDoc(doc(db, 'assessments', docId), {
           phase1: formData.phase1,
           phase2: formData.phase2,
           phase3: formData.phase3,
           phase4: formData.phase4,
+          user: { uid }, 
           timestamp: new Date()
         });
-        console.log('Form data updated in Firestore for docId:', docId);
-
-        // Menampilkan popup setelah update
+        console.log('Form data updated in Firestore for docId:', newAssessmentRef.id);
         setShowPopup(true);
         setTimeout(() => {
-          setShowPopup(false); // Sembunyikan popup setelah 3 detik
+          setShowPopup(false); 
         }, 3000);
       }
     } catch (error) {
@@ -82,25 +88,24 @@ const Assesment = () => {
 
   const handleNextForm = () => {
     if (currentPhase < 4) {
-      setCurrentPhase(currentPhase + 1); // Go to next phase
+      setCurrentPhase(currentPhase + 1); 
     }
   };
 
   const handlePrevForm = () => {
     if (currentPhase > 1) {
-      setCurrentPhase(currentPhase - 1); // Go to previous phase
+      setCurrentPhase(currentPhase - 1);
     }
   };
   const goToResult = () => {
-    // Navigate to the result page when the form is submitted in Phase 4
-    navigate('/Mine'); // Update with the actual path of your result page
+    navigate('/Mine'); 
   };
   const handleSubmit = () => {
     const newAssessment = {
         id: Date.now(),
-        title: areaOfConcern, // Data dari form
+        title: areaOfConcern, 
         date: new Date().toLocaleDateString(),
-        system: selectedSystem, // Misalnya dari dropdown
+        system: selectedSystem, 
         riskLevel: selectedRiskLevel,
         status: "In Progress"
     };
@@ -116,14 +121,12 @@ const Assesment = () => {
   
     if (newAsset !== '' && !assets.includes(newAsset)) {
       try {
-        // Menambahkan asset baru ke Firestore
         await addDoc(collection(db, 'assessments'), {
           phase2: { assetName: newAsset },
           timestamp: new Date()
         });
         console.log("Asset added to Firestore:", newAsset);
   
-        // Update state assets langsung
         setAssets(prevAssets => [...prevAssets, newAsset]);
   
       } catch (error) {
@@ -150,8 +153,6 @@ const Assesment = () => {
             allAssets.push(doc.data().phase2.assetName);
           }
         });
-  
-        console.log("Fetched Assets:", allAssets); // Debugging
         setAssets(allAssets);
       } catch (error) {
         console.error("Error fetching assets from Firestore:", error);

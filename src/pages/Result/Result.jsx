@@ -8,31 +8,42 @@ import 'jspdf-autotable';
 import emailjs from 'emailjs-com';
 import { db } from '../../firebase';
 import { collection, getDocs } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 const Result = () => {
   const [emailRecipient, setEmailRecipient] = useState('');
   const [showPopup, setShowPopup] = useState(false);
   const [assessmentData, setAssessmentData] = useState([]);
-  const [pdfBase64, setPdfBase64] = useState('');  // Store the Base64 content
-  const [isLoading, setIsLoading] = useState(true); // State for loading
+  const [pdfBase64, setPdfBase64] = useState('');  
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchAssessmentData = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'assessments'));
-        const data = [];
-        querySnapshot.forEach(doc => {
-          const docData = doc.data();
+        const user = getAuth().currentUser;
+        if (user) {
+          const userUid = user.uid;  
+          const querySnapshot = await getDocs(
+            collection(db, 'assessments')
+          );
           
-          // Konversi Firestore Timestamp ke string yang lebih mudah dibaca
-          let formattedTimestamp = 'N/A';
-          if (docData.timestamp && docData.timestamp.toDate) {
-            formattedTimestamp = docData.timestamp.toDate().toLocaleString();
-          }
+          const data = [];
+          querySnapshot.forEach(doc => {
+            const docData = doc.data();
   
-          data.push({ id: doc.id, ...docData, timestamp: formattedTimestamp });
-        });
-        setAssessmentData(data);
+            if (docData.user?.uid === userUid) {
+              let formattedTimestamp = 'N/A';
+              if (docData.timestamp && docData.timestamp.toDate) {
+                formattedTimestamp = docData.timestamp.toDate().toLocaleString();
+              }
+  
+              data.push({ id: doc.id, ...docData, timestamp: formattedTimestamp });
+            }
+          });
+  
+          data.sort((a, b) => a.timestamp - b.timestamp);
+          setAssessmentData(data);
+        }
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching assessments:', error);
@@ -48,20 +59,19 @@ const Result = () => {
     }
   }, []);
   
-
   const downloadPDF = () => {
     const doc = new jsPDF('landscape');
     const tableData = assessmentData.map((data) => {
-      const phase3 = data.phase3 || {};  // Pastikan phase3 ada dan terstruktur dengan benar
-      const phase4 = data.phase4 || {};  // Pastikan phase4 ada dan terstruktur dengan benar
+      const phase3 = data.phase3 || {};  
+      const phase4 = data.phase4 || {}; 
       return [
         data.timestamp || 'N/A',
         phase3.affectedAsset || 'N/A',
         phase3.areaOfConcern || 'N/A',
         phase3.likelihood || 'N/A',
         phase3.threatScenario || 'N/A',
-        phase4.impactAreas ? Object.keys(phase4.impactAreas).join(', ') : 'N/A',  // Cek impact area
-        phase4.impactLevel || 'N/A',  // Pastikan impactLevel ada di dalam phase4
+        phase4.impactAreas ? Object.keys(phase4.impactAreas).join(', ') : 'N/A', 
+        phase4.impactLevel || 'N/A',  
         phase4.mitigationApproach || 'N/A'
       ];
     });
@@ -96,8 +106,8 @@ const Result = () => {
     });
 
     const pdfOutput = doc.output('datauristring');
-    console.log('PDF generated:', pdfOutput);  // Check if PDF is generated
-    setPdfBase64(pdfOutput);  // Save the generated PDF to state
+    console.log('PDF generated:', pdfOutput);  
+    setPdfBase64(pdfOutput);  
     doc.save('result.pdf');
   };
 
@@ -116,23 +126,23 @@ const Result = () => {
       attachment: [
         {
           filename: 'result.pdf',
-          content: pdfBase64.split(',')[1], // Only take the Base64 content after the comma
-          encoding: 'base64', // Ensure the encoding is 'base64'
+          content: pdfBase64.split(',')[1],
+          encoding: 'base64',
         },
       ],
     };
   
     emailjs
       .send(
-        'service_7p0dlrb', // Your EmailJS service ID
-        'template_3o3mg21', // Your EmailJS template ID
+        'service_7p0dlrb', 
+        'template_3o3mg21', 
         templateParams,
-        'fRH3TE4VuREKWpIlT' // Your EmailJS user ID
+        'fRH3TE4VuREKWpIlT' 
       )
       .then(
         (response) => {
           console.log('Email sent successfully!', response.status, response.text);
-          setShowPopup(true); // Show success popup
+          setShowPopup(true); 
         },
         (error) => {
           console.log('Failed to send email:', error);
@@ -143,9 +153,9 @@ const Result = () => {
   const handleSendEmail = () => {
     if (!pdfBase64) {
       console.log('Generating PDF...');
-      downloadPDF();  // Generate PDF and then send email
+      downloadPDF();  
     } else {
-      sendEmail();  // Directly send email if PDF is already available
+      sendEmail(); 
     }
   };
 
@@ -161,7 +171,7 @@ const Result = () => {
           <h1>Security Risk Assessment Report</h1>
 
           {isLoading ? (
-            <p>Loading data...</p> // Display loading message while data is loading
+            <p>Loading data...</p> 
           ) : (
             <table className="result-table">
               <thead>

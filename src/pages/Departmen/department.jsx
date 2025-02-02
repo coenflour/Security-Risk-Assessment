@@ -40,6 +40,7 @@ const Department = () => {
 
         setAssessmentData(data);
         setAvailableYears([...years].sort());
+        data.sort((a, b) => a.timestamp - b.timestamp);
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching assessments:', error);
@@ -146,9 +147,9 @@ const Department = () => {
   const handleSendEmail = () => {
     if (!pdfBase64) {
       console.log('Generating PDF...');
-      downloadPDF();  // Generate PDF and then send email
+      downloadPDF();  
     } else {
-      sendEmail();  // Directly send email if PDF is already available
+      sendEmail();  
     }
   };
 
@@ -162,8 +163,7 @@ const Department = () => {
       <div className="department">
         <div className="department-container">
           <h1>Department Security Risk Assessment</h1>
-
-          {/* Dropdown for Year Selection */}
+          
           <label htmlFor="year">Select Year:</label>
           <select 
             id="year" 

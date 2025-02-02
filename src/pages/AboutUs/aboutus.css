@@ -3,14 +3,15 @@
     margin: 50px auto;
     border-radius: 10px;
     padding: 20px;
-    background: #f4f4f4;
+    background: #d1cece;
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
 }
 
-h1 {
+.container1 h1 {
     text-align: center;
-    color: #5E72EB;
-    margin-bottom: 30px;
+    color: #4858b6;
+    margin-bottom: 10px;
+    font-size: 30px;
 }
 
 .content1 {

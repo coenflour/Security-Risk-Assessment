@@ -1,4 +1,3 @@
-
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
@@ -14,41 +13,56 @@ const firebaseConfig = {
   measurementId: "G-F4V0FBMC3S"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const signup = async (name, email, password)=> {
-    try{
+const signup = async (name, email, password) => {
+    try {
         const res = await createUserWithEmailAndPassword(auth, email, password);
         const user = res.user;
+        console.log("User created:", user.uid); 
+        
         await addDoc(collection(db, "user"), {
             uid: user.uid,
             name,
             authProvider: "local",
             email,
+        });
 
-        })
+        console.log("User added to Firestore:", email);
     } catch (error) {
-        console.error("Error saat sign up:", error);
+        console.error("Signup Error:", error);
         if (error.code === "auth/email-already-in-use") {
-            alert("Email sudah terdaftar! Silakan login.");
+            alert("Email registered! Please login.");
         } else {
             alert(error.message);
         }
     }
-}
+};
+
 const login = async (email, password) => {
     try {
         const res = await signInWithEmailAndPassword(auth, email, password);
-        console.log("Login Success:", res.user);  // Pastikan login berhasil
+        console.log("Login Success:", res.user);
+        return res.user;  
     } catch (error) {
-        console.log("Login Failed:", error);  // Cek error yang terjadi
-        alert("Login failed: " + error.message);
+        console.error("Login Failed:", error);
+        
+        let errorMessage = "Login failed. Please try again.";
+        if (error.code === "auth/invalid-credential") {
+            errorMessage = "Incorrect email or password.";
+        } else if (error.code === "auth/user-not-found") {
+            errorMessage = "Email is not registered.";
+        } else if (error.code === "auth/wrong-password") {
+            errorMessage = "Wrong password. Please try again.";
+        }
+
+        throw new Error(errorMessage);
     }
 };
+
 
 const logout = ()=> {
     signOut(auth);

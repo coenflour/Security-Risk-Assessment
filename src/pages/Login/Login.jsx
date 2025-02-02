@@ -15,80 +15,70 @@ const Login = () => {
     const [registeredUsers, setRegisteredUsers] = useState({});
     const navigate = useNavigate();
 
-    // Improved email validation
     const isValidEmail = (email) => {
         const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         return regex.test(email) && email.endsWith("@gmail.com");
     };
 
-    const isRegisteredUser = (email, password) => registeredUsers[email] === password;
+    const isRegisteredUser = async (email) => {
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, "dummy");
+            return !!userCredential.user;
+        } catch (error) {
+            return false;
+        }
+    };    
     
     const userAuth = async (event) => {
         event.preventDefault();
-
-        // Reset any previous toast notifications
         toast.dismiss();
-
-        // Common validation
+    
         if (!email || !password) {
             return toast.error("Email and password must be filled in!");
         }
-
-        if (!email) {
-            return toast.error("Email is required!");
-        }
-
+    
         if (!isValidEmail(email)) {
             return toast.error("Please enter a valid Gmail address!");
         }
-
+    
         if (signState === "Sign In") {
-            if (!isRegisteredUser(email, password)) {
-                return toast.error("Incorrect email or password, or the account is not registered!");
-            }
-
             try {
-                await login(email, password);
+                const user = await login(email, password);
                 localStorage.setItem("userEmail", email);
-                localStorage.setItem("userName", name); // Simpan nama pengguna
+                localStorage.setItem("userName", user.name); 
                 toast.success("Login successful!");
-                setTimeout(() => {
-                    if (localStorage.getItem("userEmail")) {
-                        navigate("/home");
-                    }
-                }, 1500);
+                setTimeout(() => navigate("/home"), 1500);
             } catch (error) {
                 console.error(error);
-                toast.error(`Login failed: ${error.message}`);
-            }
+                toast.error(error.message);  
+            }            
         } else {
             if (!name) {
                 return toast.error("Name must be filled in!");
             }
-
+    
             if (password.length < 8) {
                 return toast.error("Password should be at least 8 characters!");
             }
-
+    
             try {
                 await signup(name, email, password);
                 setRegisteredUsers((prev) => ({ ...prev, [email]: password }));
                 toast.success("Registration successful! Please log in.");
                 setSignState("Sign In");
-                setEmail(email);
-                setPassword(password);  
             } catch (error) {
                 console.error(error);
-                toast.error(`Registration failed: ${error.message}`);
+                return toast.error(`Registration failed: ${error.message}`);
             }
         }
     };
+    
 
     return (
         <div className="login">
             <div className="login-form">
                 <img src={logo} className="login-logo" alt="Logo" />
-                <form onSubmit={userAuth} noValidate> {/* Added noValidate to prevent browser validation */}
+                <form onSubmit={userAuth} noValidate>
                     {signState === "Sign Up" && (
                         <input value={name} onChange={(e) => setName(e.target.value)} type="text" placeholder="Enter Name" />
                     )}
@@ -108,7 +98,6 @@ const Login = () => {
                 </div>
             </div>
 
-            {/* ToastContainer component to show the notifications */}
             <ToastContainer 
                 position="top-right" 
                 autoClose={3000} 
